@@ -514,7 +514,7 @@ def create_debit_charge(sinv, method=None):
     else:
         invoice = frappe.get_doc("Sales Invoice", sinv.name)
         customer = invoice.customer
-        termin = invoice.due_date - timedelta(days=2)
+        #termin = invoice.due_date - timedelta(days=2)
         betrag = str(invoice.grand_total).replace(".", ",")
         payment_terms = invoice.payment_terms_template
         print("payment_terms")
@@ -536,9 +536,11 @@ def create_debit_charge(sinv, method=None):
                     if sepa_mandat_doc.frst == 0 and sepa_mandat_doc.final == 0:
                         sequencetype = "FRST"
                         sepa_mandat_doc.frst = 1
+                        termin = invoice.due_date - timedelta(days=5)
                         sepa_mandat_doc.save()
                     elif sepa_mandat_doc.frst == 1 and sepa_mandat_doc.final == 0:
                         sequencetype = "RCUR"
+                        termin = invoice.due_date - timedelta(days=2)
                     elif sepa_mandat_doc.final == 1:
                         sequencetype = "FNAL"
                         sepa_mandat_doc.status = "inactive"
