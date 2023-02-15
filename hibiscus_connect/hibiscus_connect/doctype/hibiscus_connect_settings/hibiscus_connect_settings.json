@@ -19,7 +19,8 @@
   "submit_pe",
   "einstellungen_sepa_lastschrift",
   "debit_charge_active",
-  "sepa_zahlungsweise"
+  "sepa_zahlungsweise_1",
+  "sepa_zahlungsweise_basis"
  ],
  "fields": [
   {
@@ -96,17 +97,23 @@
    "label": "Gl\u00e4ubiger Identifikation"
   },
   {
-   "fieldname": "sepa_zahlungsweise",
+   "fieldname": "sepa_zahlungsweise_1",
    "fieldtype": "Link",
-   "label": "Sepa Zahlungsweise",
+   "label": "Sepa Zahlungsweise B2B",
+   "options": "Payment Terms Template"
+  },
+  {
+   "fieldname": "sepa_zahlungsweise_basis",
+   "fieldtype": "Link",
+   "label": "SEPA Zahlungsweise Basis",
    "options": "Payment Terms Template"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "migration_hash": "4d92f4743b26f8fb78f6f4ccd074e7fb",
- "modified": "2022-11-03 12:56:35.440760",
+ "migration_hash": "fd08ef58e3ca6082fdf9fe1ba00db95b",
+ "modified": "2023-02-14 14:37:46.037080",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Settings",

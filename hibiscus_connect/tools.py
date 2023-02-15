@@ -519,7 +519,7 @@ def create_debit_charge(sinv, method=None):
         payment_terms = invoice.payment_terms_template
         print("payment_terms")
         print(payment_terms)
-        if payment_terms == "SEPA Einzug 7 Tage":
+        if payment_terms == "SEPA Einzug 7 Tage" or payment_terms == "SEPA Einzug 14 Tage":
             if invoice.grand_total >0:
                 sepa_mandat = frappe.get_all("SEPA Lastschrift Mandat",
                                             filters = {
@@ -573,10 +573,10 @@ def create_debit_charge(sinv, method=None):
                 
                 elif len(sepa_mandat) == 0:
                     print("Für den Kunden wurde kein aktives SEPA Mandat gefunden")
-                    #frappe.msgprint("Für den Kunden wurde kein aktives SEPA Mandat gefunden") 
+                    frappe.msgprint("Für den Kunden wurde kein aktives SEPA Mandat gefunden") 
                 else:
                     print("Mandat nicht eindeutig, bitte prüfen")
-                    #frappe.msgprint("Mandat nicht eindeutig, bitte prüfen")
+                    frappe.msgprint("Mandat nicht eindeutig, bitte prüfen")
             
 
 
