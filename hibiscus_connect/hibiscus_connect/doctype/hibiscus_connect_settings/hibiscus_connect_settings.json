@@ -19,8 +19,14 @@
   "submit_pe",
   "einstellungen_sepa_lastschrift",
   "debit_charge_active",
-  "sepa_zahlungsweise_1",
-  "sepa_zahlungsweise_basis"
+  "sepa_zahlungsweise",
+  "export_data_section",
+  "export_konto",
+  "from_date",
+  "column_break_1fddl",
+  "bic",
+  "to_date",
+  "export"
  ],
  "fields": [
   {
@@ -97,23 +103,54 @@
    "label": "Gl\u00e4ubiger Identifikation"
   },
   {
-   "fieldname": "sepa_zahlungsweise_1",
+   "fieldname": "sepa_zahlungsweise",
    "fieldtype": "Link",
-   "label": "Sepa Zahlungsweise B2B",
+   "label": "Sepa Zahlungsweise",
    "options": "Payment Terms Template"
   },
   {
-   "fieldname": "sepa_zahlungsweise_basis",
+   "fieldname": "export_data_section",
+   "fieldtype": "Section Break",
+   "label": "Export Data"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "from Date"
+  },
+  {
+   "fieldname": "column_break_1fddl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "to Date"
+  },
+  {
+   "fieldname": "export",
+   "fieldtype": "Button",
+   "label": "Export",
+   "options": "get_export"
+  },
+  {
+   "fieldname": "export_konto",
    "fieldtype": "Link",
-   "label": "SEPA Zahlungsweise Basis",
-   "options": "Payment Terms Template"
+   "label": "Export Konto",
+   "options": "Hibiscus Connect Bank Account"
+  },
+  {
+   "fetch_from": "export_konto.bic",
+   "fieldname": "bic",
+   "fieldtype": "Data",
+   "label": "BIC",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "migration_hash": "fd08ef58e3ca6082fdf9fe1ba00db95b",
- "modified": "2023-02-14 14:37:46.037080",
+ "modified": "2023-07-11 14:28:05.027395",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Settings",
