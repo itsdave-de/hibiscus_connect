@@ -32,28 +32,7 @@ class HibiscusConnectSettings(Document):
 					"Bankleitzahl oder BIC des Auftraggebers",
 					"Kontonummer oder IBAN des Auftraggebers",
 					"Verwendungszweck 1",
-					"Verwendungszweck 2",
-					"Verwendungszweck 3",
-					"Verwendungszweck 4",
-					"Geschäftsvorgangscode",
-					"Währung",
-					"Buchungstext",
-					"Verwendungszweck 5",
-					"Verwendungszweck 6",
-					"Verwendungszweck 7",
-					"Verwendungszweck 8",
-					"Verwendungszweck 9",
-					"Verwendungszweck 10",
-					"Ursprungsbetrag",
-					"Währung Ursprungsbetrag",
-					"Äquivalenzbetrag",
-					"Währung Äquivalenzbetrag",
-					"Gebühr",
-					"Währung Gebühr",
-					"Verwendungszweck 11",
-					"Verwendungszweck 12",
-					"Verwendungszweck 13",
-					"Verwendungszweck 14" ]
+					 ]
 		
 		hib_data = frappe.get_all("Hibiscus Connect Transaction", filters = {"datum":["between", [self.from_date, self.to_date]],
 								       										"konto": self.export_konto})
@@ -71,8 +50,8 @@ class HibiscusConnectSettings(Document):
 					exp_data.append(el)
 			else:
 				print(False)
-				data =[self.export_konto , 
-	   				self.bic, 
+				data =[self.bic,
+	   				self.export_konto , 
 					"",
 					current_date,
 					el.valuta,
@@ -80,31 +59,10 @@ class HibiscusConnectSettings(Document):
 					el.betrag,
 					el.empfaenger_name,
 					"",
-					el.empfaenger_konto,
 					el.empfaenger_blz,
+					el.empfaenger_konto,
 					el.zweck,
-					"",
-					"",
-					"",
-					"",
-					"EUR",
-					"",
-					"",
-					"",
-					"",
-					"", 
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
+					
 				]
 				exp_data.append(data)
 		print(exp_data)
@@ -116,26 +74,25 @@ class HibiscusConnectSettings(Document):
 		print(df.dtypes)
 		print(df_sorted)	
 	
-		# DataFrame als CSV-Datei speichern
-		csv_data = df_sorted.to_csv(index=False, sep=';',decimal=',', line_terminator='\r\n', quoting=1)
-		print(csv_data)
+		# # DataFrame als CSV-Datei speichern
+		# csv_data = df_sorted.to_csv(index=False, sep=';',decimal=',',header=False, line_terminator='\r\n', quoting=3)
+		# print(csv_data)
 		
-		# # CSV-Datei mit den gewünschten Merkmalen manuell erstellen
-		# header = df.columns.tolist()
-		# csv_data = ""
-		# csv_data += ';"'.join(header) + '"\r\n'
-		# for _, row in df.iterrows():
-		# 	csv_row = []
-		# 	for value in row.values:
-		# 		if isinstance(value, str):
-		# 			csv_row.append(f'"{value}"')
-		# 		else:
-		# 			csv_row.append(str(value))
-		# 	csv_data += ";".join(csv_row) + "\r\n"
+		# CSV-Datei mit den gewünschten Merkmalen manuell erstellen
+		csv_data = ""
+		for _, row in df_sorted.iterrows():
+			csv_row = []
+			for value in row.values:
+				if isinstance(value, str):
+					csv_row.append(f'"{value}"')
+				else:
+					a= str(value).replace(".", ",")
+					csv_row.append(a)
+			csv_data += ";".join(csv_row) + "\r\n"
 
-		# # CSV-Datei speichern
-		# with open('data.csv', 'w', encoding='utf-8') as file:
-		# 	file.write(csv_data)
+		# CSV-Datei speichern
+		with open('data.csv', 'w', encoding='cp1252') as file:
+			file.write(csv_data)
 		name = "Bankdaten von "+ self.from_date +" bis " + self.to_date+".csv"
 		# #Datei in erpnext hochladen
 		file_data = frappe.get_doc({
@@ -164,8 +121,8 @@ class HibiscusConnectSettings(Document):
 		for el in trans_list:
 			trans_doc = frappe.get_doc("BFS List Item",el)
 			supplier_name = frappe.get_doc("Supplier", trans_doc.supplier).supplier_name
-			transaction =[self.export_konto, 
-	   				self.bic, 
+			transaction =[self.bic,
+		 			self.export_konto, 
 					"",
 					datetime.today().strftime('%d.%m.%Y'),
 					date,
@@ -176,28 +133,7 @@ class HibiscusConnectSettings(Document):
 					"",
 					"",
 					supplier_name + ", Rechnung: " + trans_doc.belegnummer,
-					"",
-					"",
-					"",
-					"",
-					"EUR",
-					"",
-					"",
-					"",
-					"",
-					"", 
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
-					"",
+					
 				]
 				
 			transactions.append(transaction)
