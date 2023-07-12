@@ -1,5 +1,4 @@
 from . import __version__ as app_version
-import hibiscus_connect
 
 app_name = "hibiscus_connect"
 app_title = "Hibiscus Connect"
