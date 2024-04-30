@@ -74,13 +74,17 @@ def get_transactions_for_account(account, von = str(date.today()-timedelta(30)),
     von_dt = dt.strptime (von,"%Y-%m-%d")
     bis_dt = dt.strptime (bis,"%Y-%m-%d")
         
-    transactions = hib.get_transactions(account_doc.id, von_dt,bis_dt)
+    transactions = hib.get_transactions(account_doc.id, von_dt,bis_dt)  
     check_trans_id = frappe.get_all("Hibiscus Connect Transaction", fields = "id")
     check_trans_id_list = [ x["id"] for x in check_trans_id]
     
     for hib_trans in transactions:
-        if hib_trans["id"] not in check_trans_id_list:
-            create_hibiscus_connect_transaction(hib_trans, account)
+        if hib_trans["saldo"] != "0.0":
+            
+            if hib_trans["id"] not in check_trans_id_list:
+                create_hibiscus_connect_transaction(hib_trans, account)
+        else:
+            print(hib_trans)
     frappe.db.commit()
 
 def create_hibiscus_connect_transaction(hib_trans, account):
