@@ -14,7 +14,6 @@ from pprint import pprint
 from numpy import append
 from pyparsing import Regex
 from frappe.exceptions import DuplicateEntryError, ValidationError
-from razorpay import Payment
 
 @frappe.whitelist()
 
