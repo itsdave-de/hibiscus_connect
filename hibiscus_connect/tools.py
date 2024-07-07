@@ -373,9 +373,14 @@ def _get_outstanding_amounts(sinv_list):
 def _get_grand_totals(sinv_list):
     grand_total_sum = 0.0
     for sinv in sinv_list:
-        sinv_doc = frappe.get_doc("Sales Invoice", sinv)
-        grand_total_sum += sinv_doc.grand_total
-    return round(grand_total_sum,2)
+        try:
+            sinv_doc = frappe.get_doc("Sales Invoice", sinv)
+            grand_total_sum += sinv_doc.grand_total
+        except frappe.DoesNotExistError:
+            print(f"Sales Invoice {sinv} does not exist and will be skipped.")
+        except Exception as e:
+            print(f"An error occurred while processing Sales Invoice {sinv}: {e}")
+    return round(grand_total_sum, 2)
 
 
 def make_payment_entry(matching_list, settings=None):
