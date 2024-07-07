@@ -14,7 +14,6 @@ from pprint import pprint
 from numpy import append
 from pyparsing import Regex
 from frappe.exceptions import DuplicateEntryError, ValidationError
-from razorpay import Payment
 
 @frappe.whitelist()
 
@@ -74,13 +73,17 @@ def get_transactions_for_account(account, von = str(date.today()-timedelta(30)),
     von_dt = dt.strptime (von,"%Y-%m-%d")
     bis_dt = dt.strptime (bis,"%Y-%m-%d")
         
-    transactions = hib.get_transactions(account_doc.id, von_dt,bis_dt)
+    transactions = hib.get_transactions(account_doc.id, von_dt,bis_dt)  
     check_trans_id = frappe.get_all("Hibiscus Connect Transaction", fields = "id")
     check_trans_id_list = [ x["id"] for x in check_trans_id]
     
     for hib_trans in transactions:
-        if hib_trans["id"] not in check_trans_id_list:
-            create_hibiscus_connect_transaction(hib_trans, account)
+        if hib_trans["saldo"] != "0.0":
+            
+            if hib_trans["id"] not in check_trans_id_list:
+                create_hibiscus_connect_transaction(hib_trans, account)
+        else:
+            print(hib_trans)
     frappe.db.commit()
 
 def create_hibiscus_connect_transaction(hib_trans, account):
@@ -519,12 +522,12 @@ def create_debit_charge(sinv, method=None):
     else:
         invoice = frappe.get_doc("Sales Invoice", sinv.name)
         customer = invoice.customer
-        termin = invoice.due_date - timedelta(days=2)
+        #termin = invoice.due_date - timedelta(days=2)
         betrag = str(invoice.grand_total).replace(".", ",")
         payment_terms = invoice.payment_terms_template
         print("payment_terms")
         print(payment_terms)
-        if payment_terms == "SEPA Einzug 7 Tage":
+        if payment_terms == "SEPA Einzug 7 Tage" or payment_terms == "SEPA Einzug 14 Tage":
             if invoice.grand_total >0:
                 sepa_mandat = frappe.get_all("SEPA Lastschrift Mandat",
                                             filters = {
@@ -541,9 +544,11 @@ def create_debit_charge(sinv, method=None):
                     if sepa_mandat_doc.frst == 0 and sepa_mandat_doc.final == 0:
                         sequencetype = "FRST"
                         sepa_mandat_doc.frst = 1
+                        termin = invoice.due_date - timedelta(days=5)
                         sepa_mandat_doc.save()
                     elif sepa_mandat_doc.frst == 1 and sepa_mandat_doc.final == 0:
                         sequencetype = "RCUR"
+                        termin = invoice.due_date - timedelta(days=2)
                     elif sepa_mandat_doc.final == 1:
                         sequencetype = "FNAL"
                         sepa_mandat_doc.status = "inactive"
@@ -576,10 +581,10 @@ def create_debit_charge(sinv, method=None):
                 
                 elif len(sepa_mandat) == 0:
                     print("Für den Kunden wurde kein aktives SEPA Mandat gefunden")
-                    #frappe.msgprint("Für den Kunden wurde kein aktives SEPA Mandat gefunden") 
+                    frappe.msgprint("Für den Kunden wurde kein aktives SEPA Mandat gefunden") 
                 else:
                     print("Mandat nicht eindeutig, bitte prüfen")
-                    #frappe.msgprint("Mandat nicht eindeutig, bitte prüfen")
+                    frappe.msgprint("Mandat nicht eindeutig, bitte prüfen")
             
 
 
