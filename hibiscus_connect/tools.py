@@ -180,8 +180,8 @@ def match_payment(hib_trans, sinvs=None, sinv_names=None):
         if matching_list["sinvs_cust"]:
             matching_list["sinvs_matched_cust"] = True
             matching_list["totals_matched"] = True
+            print("183 ", matching_list)
             return matching_list
-    
     return matching_list
 
     
@@ -350,7 +350,6 @@ def _get_unpaid_sinv_names():
         sinv_numbers.append(str(si["name"]))
     return sinv_numbers
 
-
         
 def _get_sinv_names(zweck, sinvs=None, extended_matching=True):
     naming_series = get_default_naming_series("Sales Invoice")
@@ -362,27 +361,21 @@ def _get_sinv_names(zweck, sinvs=None, extended_matching=True):
     if match_regex_naming_series:
         for m in match_regex_naming_series:
             if m not in sinv_name_list:
-                sinv_name_list.append(m)
+                if frappe.db.exists("Sales Invoice", m):
+                    sinv_name_list.append(m)
+                else:
+                    print(f"Sales Invoice {m} does not exist and will be skipped.")
     return sinv_name_list
 
-
-def _get_outstanding_amounts(sinv_list):
-    outstanding_amount_sum = 0.0
-    for sinv in sinv_list:
-        sinv_doc = frappe.get_doc("Sales Invoice", sinv)
-        outstanding_amount_sum += sinv_doc.outstanding_amount
-    return outstanding_amount_sum
 
 def _get_grand_totals(sinv_list):
     grand_total_sum = 0.0
     for sinv in sinv_list:
-        try:
+        if frappe.db.exists("Sales Invoice", sinv):
             sinv_doc = frappe.get_doc("Sales Invoice", sinv)
             grand_total_sum += sinv_doc.grand_total
-        except frappe.DoesNotExistError:
+        else:
             print(f"Sales Invoice {sinv} does not exist and will be skipped.")
-        except Exception as e:
-            print(f"An error occurred while processing Sales Invoice {sinv}: {e}")
     return round(grand_total_sum, 2)
 
 
@@ -497,7 +490,17 @@ def _get_payment_entry_reference(sinv):
 ### wip
 
 def get_text_from_stats(stats):
-    return "blub" + str(stats)
+    html = (
+        f"<h2>Summary of Processed Payments</h2>"
+        f"<ul style='list-style-type: disc; padding-left: 20px;'>"
+        f"<li><strong>Payments Processed:</strong> {stats['payments_processed']}</li>"
+        f"<li><strong>Strictly Matched Invoices:</strong> {stats['sinvs_matched_strict']}</li>"
+        f"<li><strong>Loosely Matched Invoices:</strong> {stats['sinvs_matched_loose']}</li>"
+        f"<li><strong>Customer Matched Invoices:</strong> {stats['sinvs_matched_cust']}</li>"
+        f"<li><strong>Totals Matched:</strong> {stats['totals_matched']}</li>"
+        f"</ul>"
+    )
+    return html
 
 @frappe.whitelist()
 def set_andere_einnahme(list):
