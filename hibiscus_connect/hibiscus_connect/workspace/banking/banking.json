@@ -1,54 +1,47 @@
 {
- "category": "Modules",
  "charts": [
-  {
-   "chart_name": "Unverbuchte Zahlungseing\u00e4nge",
-   "label": "unverbuchte Zahlungseing\u00e4nge"
-  },
   {
    "chart_name": "offene Ausgangsrechnungen",
    "label": "offene Ausgangsrechnungen"
+  },
+  {
+   "chart_name": "Unverbuchte Zahlungseing\u00e4nge",
+   "label": "Unverbuchte Zahlungseing\u00e4nge"
   }
  ],
- "creation": "2022-04-13 21:01:44.326175",
- "developer_mode_only": 0,
- "disable_user_customization": 0,
+ "content": "[{\"id\":\"qxdKjVW-Xg\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Banking</span>\",\"col\":12}},{\"id\":\"mh6W07Zo5h\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction\",\"col\":3}},{\"id\":\"CdFFzH78No\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uGASuuLnKq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"offene Ausgangsrechnungen\",\"col\":6}},{\"id\":\"s4KRaBcgQ0\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Unverbuchte Zahlungseing\u00e4nge\",\"col\":6}}]",
+ "creation": "2024-07-24 14:16:16.989475",
+ "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
- "extends_another_page": 0,
+ "for_user": "",
  "hide_custom": 0,
- "icon": "accounting",
+ "icon": "money-coins-1",
  "idx": 0,
- "is_default": 0,
- "is_standard": 1,
+ "indicator_color": "green",
+ "is_hidden": 0,
  "label": "Banking",
  "links": [],
- "modified": "2022-04-26 08:10:11.730565",
- "modified_by": "Administrator",
+ "modified": "2024-07-24 14:30:25.397026",
+ "modified_by": "D.Malinowski@itsdave.de",
  "module": "Hibiscus Connect",
  "name": "Banking",
- "owner": "Administrator",
- "pin_to_bottom": 0,
- "pin_to_top": 0,
+ "number_cards": [],
+ "owner": "D.Malinowski@itsdave.de",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 3.0,
  "shortcuts": [
   {
+   "color": "Grey",
    "doc_view": "List",
-   "label": "Transactions",
+   "label": "Hibiscus Connect Transaction",
    "link_to": "Hibiscus Connect Transaction",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "List",
-   "label": "Accounts",
-   "link_to": "Hibiscus Connect Bank Account",
-   "type": "DocType"
-  },
-  {
-   "doc_view": "New",
-   "label": "Settings",
-   "link_to": "Hibiscus Connect Settings",
+   "stats_filter": "[]",
    "type": "DocType"
   }
  ],
- "shortcuts_label": "Data"
+ "title": "Banking"
 }
