@@ -9,7 +9,7 @@
    "label": "Unverbuchte Zahlungseing\u00e4nge"
   }
  ],
- "content": "[{\"id\":\"qxdKjVW-Xg\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Banking</span>\",\"col\":12}},{\"id\":\"mh6W07Zo5h\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction\",\"col\":3}},{\"id\":\"CdFFzH78No\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uGASuuLnKq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"offene Ausgangsrechnungen\",\"col\":6}},{\"id\":\"s4KRaBcgQ0\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Unverbuchte Zahlungseing\u00e4nge\",\"col\":6}}]",
+ "content": "[{\"id\":\"qxdKjVW-Xg\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Banking</span>\",\"col\":12}},{\"id\":\"mh6W07Zo5h\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction\",\"col\":3}},{\"id\":\"CdFFzH78No\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uGASuuLnKq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"offene Ausgangsrechnungen\",\"col\":6}},{\"id\":\"s4KRaBcgQ0\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Unverbuchte Zahlungseing\u00e4nge\",\"col\":6}},{\"id\":\"WXKqXRBCES\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"prjuFs46Uw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Bank Account\",\"col\":3}},{\"id\":\"VeExVRN1S-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction Category\",\"col\":3}},{\"id\":\"SH9QNBXMm-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Settings\",\"col\":3}}]",
  "creation": "2024-07-24 14:16:16.989475",
  "custom_blocks": [],
  "docstatus": 0,
@@ -22,7 +22,7 @@
  "is_hidden": 0,
  "label": "Banking",
  "links": [],
- "modified": "2024-07-24 14:30:25.397026",
+ "modified": "2024-10-11 10:44:54.223719",
  "modified_by": "D.Malinowski@itsdave.de",
  "module": "Hibiscus Connect",
  "name": "Banking",
@@ -32,7 +32,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 3.0,
+ "sequence_id": 4.0,
  "shortcuts": [
   {
    "color": "Grey",
@@ -40,6 +40,29 @@
    "label": "Hibiscus Connect Transaction",
    "link_to": "Hibiscus Connect Transaction",
    "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Hibiscus Connect Bank Account",
+   "link_to": "Hibiscus Connect Bank Account",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Hibiscus Connect Transaction Category",
+   "link_to": "Hibiscus Connect Transaction Category",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Hibiscus Connect Settings",
+   "link_to": "Hibiscus Connect Settings",
    "type": "DocType"
   }
  ],
