@@ -1,34 +1,63 @@
 {
  "actions": [],
+ "allow_copy": 0,
  "autoname": "field:iban",
  "creation": "2021-10-19 01:02:37.879166",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "description",
+  "account_name_from_bank",
   "iban",
   "bic",
-  "kontonummer",
-  "blz",
-  "column_break_5",
-  "bezeichnung",
-  "name1",
-  "saldo_section",
-  "saldo",
-  "saldo_available",
-  "column_break_11",
-  "saldo_datum",
+  "account_number",
+  "bank_code",
+  "column_break_account",
+  "account_holder",
+  "balance_section",
+  "balance",
+  "available_balance",
+  "column_break_balance",
+  "balance_date",
+  "display_section",
+  "accent_color_1",
+  "accent_color_2",
+  "text_color",
+  "sort_order",
   "details_section",
-  "unterkonto",
-  "kundennummer",
-  "waehrung",
-  "id",
-  "kommentar",
-  "erpnext_integration_section",
-  "erpnext_bankkonto",
-  "fetch_periodically"
+  "sub_account",
+  "customer_number",
+  "currency",
+  "hibiscus_id",
+  "hibiscus_comment",
+  "erpnext_section",
+  "erpnext_account_doctype",
+  "erpnext_account",
+  "auto_fetch",
+  "access_permissions_section",
+  "permitted_users",
+  "column_break_permissions",
+  "permitted_roles"
  ],
  "fields": [
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Description",
+   "description": "Custom description to help identify this account"
+  },
+  {
+   "fieldname": "account_name_from_bank",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Account Name From Bank",
+   "read_only": 1,
+   "description": "Account type/name as provided by the bank (e.g. Kontokorrent, Darlehen, Termineinlage)"
+  },
   {
    "fieldname": "iban",
    "fieldtype": "Data",
@@ -36,105 +65,142 @@
    "in_standard_filter": 1,
    "label": "IBAN",
    "read_only": 1,
-   "unique": 1
+   "unique": 1,
+   "description": "International Bank Account Number"
   },
   {
-   "fieldname": "blz",
+   "fieldname": "bank_code",
    "fieldtype": "Data",
-   "label": "BLZ",
-   "read_only": 1
+   "label": "Bank Code",
+   "read_only": 1,
+   "description": "German bank code (BLZ - Bankleitzahl)"
   },
   {
-   "fieldname": "bezeichnung",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Bezeichnung",
-   "read_only": 1
-  },
-  {
-   "fieldname": "saldo_available",
+   "fieldname": "available_balance",
    "fieldtype": "Float",
-   "label": "Saldo Available",
-   "read_only": 1
+   "label": "Available Balance",
+   "read_only": 1,
+   "description": "Available balance for transactions"
   },
   {
-   "fieldname": "saldo",
+   "fieldname": "balance",
    "fieldtype": "Float",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Saldo",
-   "read_only": 1
+   "label": "Balance",
+   "read_only": 1,
+   "description": "Current account balance"
   },
   {
-   "fieldname": "unterkonto",
+   "fieldname": "sub_account",
    "fieldtype": "Data",
-   "label": "Unterkonto",
-   "read_only": 1
+   "label": "Sub Account",
+   "read_only": 1,
+   "description": "Sub-account identifier if applicable"
   },
   {
-   "fieldname": "kundennummer",
+   "fieldname": "customer_number",
    "fieldtype": "Data",
-   "label": "Kundennummer",
-   "read_only": 1
+   "label": "Customer Number",
+   "read_only": 1,
+   "description": "Bank customer number"
   },
   {
-   "fieldname": "kontonummer",
+   "fieldname": "account_number",
    "fieldtype": "Data",
-   "label": "Kontonummer",
-   "read_only": 1
+   "label": "Account Number",
+   "read_only": 1,
+   "description": "Traditional bank account number"
   },
   {
-   "fieldname": "name1",
+   "fieldname": "account_holder",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Name",
-   "read_only": 1
+   "label": "Account Holder",
+   "read_only": 1,
+   "description": "Name of the account holder"
   },
   {
-   "fieldname": "waehrung",
+   "fieldname": "currency",
    "fieldtype": "Data",
-   "label": "W\u00e4hrung",
-   "read_only": 1
+   "label": "Currency",
+   "read_only": 1,
+   "description": "Account currency (e.g. EUR)"
   },
   {
-   "fieldname": "saldo_datum",
+   "fieldname": "balance_date",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Saldo Datum",
-   "read_only": 1
+   "label": "Balance Date",
+   "read_only": 1,
+   "description": "Date of the last balance update"
   },
   {
-   "fieldname": "id",
+   "fieldname": "hibiscus_id",
    "fieldtype": "Data",
    "label": "Hibiscus ID",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Internal account ID in Hibiscus server"
   },
   {
    "fieldname": "bic",
    "fieldtype": "Data",
    "label": "BIC",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Bank Identifier Code (SWIFT code)"
   },
   {
-   "fieldname": "kommentar",
+   "fieldname": "hibiscus_comment",
    "fieldtype": "Text",
-   "label": "Hibiscus Kommentar",
-   "read_only": 1
+   "label": "Hibiscus Comment",
+   "read_only": 1,
+   "description": "Comment stored in Hibiscus for this account"
   },
   {
-   "fieldname": "column_break_5",
+   "fieldname": "column_break_account",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "saldo_section",
+   "fieldname": "balance_section",
    "fieldtype": "Section Break",
-   "label": "Saldo"
+   "label": "Balance"
   },
   {
-   "fieldname": "column_break_11",
+   "fieldname": "column_break_balance",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "display_section",
+   "fieldtype": "Section Break",
+   "label": "Display Settings"
+  },
+  {
+   "fieldname": "accent_color_1",
+   "fieldtype": "Color",
+   "label": "Accent Color 1",
+   "default": "#667eea",
+   "description": "Primary gradient color for dashboard display"
+  },
+  {
+   "fieldname": "accent_color_2",
+   "fieldtype": "Color",
+   "label": "Accent Color 2",
+   "default": "#764ba2",
+   "description": "Secondary gradient color for dashboard display"
+  },
+  {
+   "fieldname": "text_color",
+   "fieldtype": "Select",
+   "label": "Text Color",
+   "options": "Auto\nLight\nDark",
+   "default": "Auto",
+   "description": "Text color on gradient background (Auto detects based on background brightness)"
+  },
+  {
+   "fieldname": "sort_order",
+   "fieldtype": "Int",
+   "label": "Sort Order",
+   "default": "0",
+   "description": "Display order in dashboard widget (lower numbers appear first)"
   },
   {
    "fieldname": "details_section",
@@ -142,21 +208,54 @@
    "label": "Details"
   },
   {
-   "fieldname": "erpnext_bankkonto",
+   "fieldname": "erpnext_account_doctype",
    "fieldtype": "Link",
-   "label": "ERPNext Bankkonto",
-   "options": "Account"
+   "label": "ERPNext Account Type",
+   "options": "DocType",
+   "hidden": 1,
+   "description": "Set to 'Account' when ERPNext is installed"
   },
   {
-   "fieldname": "erpnext_integration_section",
+   "fieldname": "erpnext_account",
+   "fieldtype": "Dynamic Link",
+   "label": "ERPNext Account",
+   "options": "erpnext_account_doctype",
+   "description": "Link to the corresponding ERPNext bank account"
+  },
+  {
+   "fieldname": "erpnext_section",
    "fieldtype": "Section Break",
    "label": "ERPNext Integration"
   },
   {
    "default": "0",
-   "fieldname": "fetch_periodically",
+   "fieldname": "auto_fetch",
    "fieldtype": "Check",
-   "label": "st\u00fcndliches Abrufen aktiv"
+   "label": "Auto Fetch Transactions",
+   "description": "When enabled, transactions are automatically fetched hourly"
+  },
+  {
+   "fieldname": "access_permissions_section",
+   "fieldtype": "Section Break",
+   "label": "Access Permissions"
+  },
+  {
+   "fieldname": "permitted_users",
+   "fieldtype": "Table MultiSelect",
+   "label": "Permitted Users",
+   "options": "Bank Account User Permission",
+   "description": "Users who can access this bank account"
+  },
+  {
+   "fieldname": "column_break_permissions",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "permitted_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Permitted Roles",
+   "options": "Bank Account Role Permission",
+   "description": "All users with these roles can access this bank account"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -168,7 +267,6 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -186,10 +284,10 @@
    "read": 1,
    "report": 1,
    "role": "Banking User",
-   "share": 1
+   "share": 1,
+   "write": 1
   },
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -201,7 +299,7 @@
    "write": 1
   }
  ],
- "search_fields": "iban",
+ "search_fields": "iban,description,account_name_from_bank",
  "sort_field": "modified",
  "sort_order": "DESC",
  "title_field": "iban",

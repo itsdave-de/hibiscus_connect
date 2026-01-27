@@ -1,0 +1,2 @@
+hibiscus_connect.patches.remove_erpnext_dependencies
+hibiscus_connect.patches.update_transaction_fields_from_hibiscus

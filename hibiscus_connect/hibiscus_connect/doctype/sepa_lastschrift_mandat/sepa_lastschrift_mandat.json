@@ -8,92 +8,112 @@
  "engine": "InnoDB",
  "field_order": [
   "status",
-  "konto_section",
-  "konto",
-  "konto_id",
+  "creditor_section",
+  "creditor_iban",
+  "creditor_account_id",
   "column_break_4",
-  "creditorid",
-  "gegenkonto_section",
+  "creditor_id",
+  "debtor_section",
+  "customer_type",
   "customer",
-  "blz",
+  "debtor_bic",
   "column_break_9",
-  "gegenkonto_name",
-  "kontonummer",
+  "debtor_name",
+  "debtor_iban",
   "section_break_12",
-  "mandat_section",
-  "mandateid",
-  "sepatype",
-  "frst",
+  "mandate_section",
+  "mandate_reference",
+  "sepa_type",
+  "first_debit_done",
   "column_break_17",
-  "sigdate",
-  "endtoendid",
-  "final"
+  "signature_date",
+  "end_to_end_id",
+  "is_final_debit"
  ],
  "fields": [
   {
-   "fieldname": "customer",
+   "fieldname": "customer_type",
    "fieldtype": "Link",
+   "label": "Customer Type",
+   "options": "DocType",
+   "hidden": 1,
+   "description": "Set to 'Customer' when ERPNext is installed"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Dynamic Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "customer_type",
+   "description": "Link to the customer (ERPNext)"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "new\nactive\ninactive"
+   "options": "new\nactive\ninactive",
+   "description": "Status of the SEPA mandate"
   },
   {
-   "fieldname": "konto",
+   "fieldname": "creditor_iban",
    "fieldtype": "Data",
-   "label": "Konto",
-   "read_only": 1
+   "label": "Creditor IBAN",
+   "read_only": 1,
+   "description": "IBAN of the creditor's bank account"
   },
   {
-   "fieldname": "blz",
+   "fieldname": "debtor_bic",
    "fieldtype": "Data",
-   "label": "BIC Gegenkonto"
+   "label": "Debtor BIC",
+   "description": "BIC/SWIFT code of the debtor's bank"
   },
   {
-   "fieldname": "kontonummer",
+   "fieldname": "debtor_iban",
    "fieldtype": "Data",
-   "label": "IBAN Gegenkonto"
+   "label": "Debtor IBAN",
+   "description": "IBAN of the debtor's bank account"
   },
   {
-   "fieldname": "endtoendid",
+   "fieldname": "end_to_end_id",
    "fieldtype": "Data",
-   "label": "End to end id"
+   "label": "End to End ID",
+   "description": "Unique identifier for tracking the transaction from end to end"
   },
   {
-   "fieldname": "mandateid",
+   "fieldname": "mandate_reference",
    "fieldtype": "Data",
-   "label": "Mandats Referenz",
-   "read_only": 1
+   "label": "Mandate Reference",
+   "read_only": 1,
+   "description": "Unique reference number for this SEPA mandate"
   },
   {
-   "fieldname": "creditorid",
+   "fieldname": "creditor_id",
    "fieldtype": "Data",
-   "label": "Gl\u00e4ubiger Identifikation",
-   "read_only": 1
+   "label": "Creditor ID",
+   "read_only": 1,
+   "description": "SEPA Creditor Identifier (Gläubiger-ID)"
   },
   {
-   "fieldname": "sigdate",
+   "fieldname": "signature_date",
    "fieldtype": "Date",
-   "label": "Unterschriftsdatum des Mandats"
+   "label": "Signature Date",
+   "description": "Date when the mandate was signed by the debtor"
   },
   {
    "default": "B2B",
-   "fieldname": "sepatype",
+   "fieldname": "sepa_type",
    "fieldtype": "Select",
-   "label": "Lastschrift Art",
-   "options": "CORE\nCOR1\nB2B"
+   "label": "SEPA Type",
+   "options": "CORE\nCOR1\nB2B",
+   "description": "Type of SEPA direct debit (CORE for consumers, B2B for businesses)"
   },
   {
-   "fieldname": "gegenkonto_name",
+   "fieldname": "debtor_name",
    "fieldtype": "Data",
-   "label": "Inhaber Name Gegenkonto"
+   "label": "Debtor Name",
+   "description": "Name of the account holder (debtor)"
   },
   {
-   "fieldname": "konto_section",
+   "fieldname": "creditor_section",
    "fieldtype": "Section Break",
    "label": "Creditor"
   },
@@ -102,15 +122,16 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "konto_id",
+   "fieldname": "creditor_account_id",
    "fieldtype": "Data",
-   "label": "Konto ID",
-   "read_only": 1
+   "label": "Creditor Account ID",
+   "read_only": 1,
+   "description": "Hibiscus internal account ID for the creditor"
   },
   {
-   "fieldname": "gegenkonto_section",
+   "fieldname": "debtor_section",
    "fieldtype": "Section Break",
-   "label": "Debitor"
+   "label": "Debtor"
   },
   {
    "fieldname": "column_break_9",
@@ -121,9 +142,9 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "mandat_section",
+   "fieldname": "mandate_section",
    "fieldtype": "Section Break",
-   "label": "Mandat"
+   "label": "Mandate"
   },
   {
    "fieldname": "column_break_17",
@@ -131,15 +152,17 @@
   },
   {
    "default": "0",
-   "fieldname": "frst",
+   "fieldname": "first_debit_done",
    "fieldtype": "Check",
-   "label": "Erstmalige Lastschrift erfolgt"
+   "label": "First Debit Done",
+   "description": "Check if the first direct debit has been executed"
   },
   {
    "default": "0",
-   "fieldname": "final",
+   "fieldname": "is_final_debit",
    "fieldtype": "Check",
-   "label": "Letztmalige Lastschrift"
+   "label": "Final Debit",
+   "description": "Check if this is the last direct debit under this mandate"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -161,6 +184,27 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking User",
+   "share": 1
   }
  ],
  "sort_field": "modified",

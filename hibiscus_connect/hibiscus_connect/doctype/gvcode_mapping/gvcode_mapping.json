@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "allow_copy": 1,
+ "allow_import": 1,
+ "autoname": "format:{bic}-{transaction_type}-{primanota}",
+ "creation": "2025-12-12 18:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "bic",
+  "bank_name",
+  "column_break_bank",
+  "transaction_type",
+  "primanota",
+  "mapping_section",
+  "gvcode",
+  "gvcode_description",
+  "column_break_mapping",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "bic",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "BIC",
+   "reqd": 1,
+   "description": "Bank Identifier Code (SWIFT). Use '*' for a default mapping that applies to all banks."
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name",
+   "description": "Optional: Name of the bank for reference"
+  },
+  {
+   "fieldname": "column_break_bank",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Type",
+   "reqd": 1,
+   "description": "Hibiscus transaction type (art), e.g. 'Überweisungsgutschr.', 'Basislastschrift'"
+  },
+  {
+   "fieldname": "primanota",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Primanota",
+   "reqd": 1,
+   "description": "Bank's internal booking reference number"
+  },
+  {
+   "fieldname": "mapping_section",
+   "fieldtype": "Section Break",
+   "label": "GVCode Mapping"
+  },
+  {
+   "fieldname": "gvcode",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "GVCode",
+   "reqd": 1,
+   "description": "5-digit Geschäftsvorfallcode (e.g. 00931 for SEPA credit transfer)"
+  },
+  {
+   "fieldname": "gvcode_description",
+   "fieldtype": "Data",
+   "label": "GVCode Description",
+   "description": "Human-readable description of the GVCode"
+  },
+  {
+   "fieldname": "column_break_mapping",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes",
+   "description": "Additional notes about this mapping"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-12 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "GVCode Mapping",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking User",
+   "share": 1
+  }
+ ],
+ "search_fields": "bic,transaction_type,primanota,gvcode",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "gvcode",
+ "track_changes": 1
+}

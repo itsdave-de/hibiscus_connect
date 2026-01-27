@@ -7,139 +7,193 @@
  "engine": "InnoDB",
  "field_order": [
   "status",
-  "transaktion_section",
-  "art",
-  "betrag",
+  "transaction_section",
+  "transaction_type",
+  "amount",
   "column_break_3",
   "customer_ref",
-  "datum",
-  "gegenkonto_section",
-  "empfaenger_blz",
-  "empfaenger_konto",
+  "transaction_date",
+  "counterparty_section",
+  "counterparty_bic",
+  "counterparty_iban",
   "column_break_9",
-  "empfaenger_name",
+  "counterparty_name",
+  "customer_type",
   "customer",
   "customer_name",
-  "section_break_10",
+  "details_section",
   "gvcode",
-  "id",
-  "kommentar",
+  "hibiscus_id",
+  "hibiscus_comment",
   "column_break_14",
-  "konto_id",
+  "hibiscus_account_id",
   "primanota",
-  "section_break_17",
-  "saldo",
-  "valuta",
+  "end_to_end_id",
+  "balance_section",
+  "balance",
+  "value_date",
   "column_break_20",
-  "zweck",
-  "zweck_raw",
-  "automatisierung_section",
-  "protokoll",
-  "konto"
+  "purpose",
+  "purpose_raw",
+  "automation_section",
+  "log",
+  "bank_account",
+  "compusoft_matching_section",
+  "compusoft_match_status",
+  "compusoft_kunde_lbnr",
+  "compusoft_booking_nr",
+  "column_break_matching",
+  "compusoft_last_matched",
+  "compusoft_match_score",
+  "compusoft_total_amount",
+  "compusoft_match_data",
+  "compusoft_match_display"
  ],
  "fields": [
   {
-   "fieldname": "art",
+   "description": "Type of transaction (e.g. Lastschrift, \u00dcberweisung)",
+   "fieldname": "transaction_type",
    "fieldtype": "Data",
-   "label": "Art"
+   "label": "Transaction Type",
+   "read_only": 1
   },
   {
-   "fieldname": "betrag",
+   "description": "Transaction amount (positive for credits, negative for debits)",
+   "fieldname": "amount",
    "fieldtype": "Float",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Betrag"
+   "label": "Amount",
+   "read_only": 1
   },
   {
+   "description": "Customer reference number from the transaction",
    "fieldname": "customer_ref",
    "fieldtype": "Data",
-   "label": "Customer Ref"
+   "label": "Customer Reference",
+   "read_only": 1
   },
   {
-   "fieldname": "datum",
+   "description": "Date when the transaction was booked",
+   "fieldname": "transaction_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Datum"
+   "label": "Transaction Date",
+   "read_only": 1
   },
   {
-   "fieldname": "empfaenger_blz",
+   "description": "BIC/SWIFT code of the counterparty's bank",
+   "fieldname": "counterparty_bic",
    "fieldtype": "Data",
-   "label": "Gegenkonto BLZ"
+   "label": "Counterparty BIC",
+   "read_only": 1
   },
   {
-   "fieldname": "empfaenger_konto",
+   "description": "IBAN of the counterparty account",
+   "fieldname": "counterparty_iban",
    "fieldtype": "Data",
-   "label": "Gegenkonto Konto"
+   "label": "Counterparty IBAN",
+   "read_only": 1
   },
   {
-   "fieldname": "empfaenger_name",
+   "description": "Name of the counterparty (sender or recipient)",
+   "fieldname": "counterparty_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Gegenkonto Name"
+   "label": "Counterparty Name",
+   "read_only": 1
   },
   {
+   "description": "German bank transaction type code (Gesch\u00e4ftsvorfallcode)",
    "fieldname": "gvcode",
    "fieldtype": "Data",
-   "label": "GVCode"
+   "label": "GV Code",
+   "read_only": 1
   },
   {
-   "fieldname": "id",
+   "description": "Internal transaction ID in Hibiscus server",
+   "fieldname": "hibiscus_id",
    "fieldtype": "Data",
-   "label": "Hibiscus ID"
+   "label": "Hibiscus ID",
+   "read_only": 1
   },
   {
-   "fieldname": "kommentar",
+   "description": "Comment stored in Hibiscus for this transaction",
+   "fieldname": "hibiscus_comment",
    "fieldtype": "Data",
-   "label": "Hibiscus Kommentar"
+   "label": "Hibiscus Comment",
+   "read_only": 1
   },
   {
-   "fieldname": "konto_id",
+   "description": "ID of the bank account in Hibiscus server",
+   "fieldname": "hibiscus_account_id",
    "fieldtype": "Data",
-   "label": "Konto ID"
+   "label": "Hibiscus Account ID",
+   "read_only": 1
   },
   {
+   "description": "Bank's internal reference number",
    "fieldname": "primanota",
    "fieldtype": "Data",
-   "label": "Primanota"
+   "label": "Primanota",
+   "read_only": 1
   },
   {
-   "fieldname": "saldo",
+   "description": "SEPA End-to-End Reference (unique payment identifier)",
+   "fieldname": "end_to_end_id",
+   "fieldtype": "Data",
+   "label": "End-to-End ID",
+   "read_only": 1
+  },
+  {
+   "description": "Account balance after this transaction",
+   "fieldname": "balance",
    "fieldtype": "Float",
-   "label": "Saldo"
+   "label": "Balance",
+   "read_only": 1
   },
   {
-   "fieldname": "valuta",
+   "description": "Date when the transaction becomes effective (Valuta)",
+   "fieldname": "value_date",
    "fieldtype": "Date",
-   "label": "Valuta"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Value Date",
+   "read_only": 1
   },
   {
-   "fieldname": "zweck",
+   "description": "Payment purpose/reference text (Verwendungszweck)",
+   "fieldname": "purpose",
    "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Zweck"
+   "label": "Purpose",
+   "read_only": 1
   },
   {
-   "fieldname": "zweck_raw",
+   "description": "Unprocessed purpose text from the bank",
+   "fieldname": "purpose_raw",
    "fieldtype": "Small Text",
-   "label": "Zweck Raw"
+   "label": "Purpose Raw",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_10",
+   "fieldname": "details_section",
    "fieldtype": "Section Break",
-   "label": "Sonstige Informationen"
+   "label": "Additional Details"
   },
   {
    "fieldname": "column_break_14",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_17",
-   "fieldtype": "Section Break"
+   "fieldname": "balance_section",
+   "fieldtype": "Section Break",
+   "label": "Balance & Purpose"
   },
   {
    "fieldname": "column_break_20",
@@ -150,63 +204,149 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Processing status of the transaction",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "neu\nautomatisch verbucht\nteilweise automatisch verbucht\nmanuell verbucht\nteilweise verbucht\nlegacy verbucht\nabgebrochen\nandere Einnahme"
+   "options": "new\nauto booked\npartially auto booked\nmanually booked\npartially booked\nlegacy booked\ncancelled\nother income"
   },
   {
-   "fieldname": "transaktion_section",
+   "fieldname": "transaction_section",
    "fieldtype": "Section Break",
-   "label": "Transaktion"
+   "label": "Transaction"
   },
   {
-   "fieldname": "gegenkonto_section",
+   "fieldname": "counterparty_section",
    "fieldtype": "Section Break",
-   "label": "Gegenkonto"
+   "label": "Counterparty"
   },
   {
-   "fieldname": "automatisierung_section",
+   "fieldname": "automation_section",
    "fieldtype": "Section Break",
-   "label": "Automatisierung"
+   "label": "Automation"
   },
   {
-   "fieldname": "protokoll",
+   "description": "Processing log for automatic matching and booking",
+   "fieldname": "log",
    "fieldtype": "Long Text",
-   "label": "Protokoll"
+   "label": "Log"
   },
   {
-   "fieldname": "konto",
+   "description": "The bank account this transaction belongs to",
+   "fieldname": "bank_account",
    "fieldtype": "Link",
-   "label": "Konto",
-   "options": "Hibiscus Connect Bank Account"
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Bank Account",
+   "options": "Hibiscus Connect Bank Account",
+   "read_only": 1
   },
   {
+   "description": "Linked customer for this transaction (ERPNext)",
    "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Kunde",
-   "options": "Customer"
+   "fieldtype": "Dynamic Link",
+   "label": "Customer",
+   "options": "customer_type"
   },
   {
-   "fetch_from": "customer.customer_name",
+   "description": "Set to 'Customer' when ERPNext is installed",
+   "fieldname": "customer_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Customer Type",
+   "options": "DocType"
+  },
+  {
+   "description": "Name of the linked customer",
    "fieldname": "customer_name",
    "fieldtype": "Data",
    "in_standard_filter": 1,
-   "label": "Kunden Name",
+   "label": "Customer Name",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "compusoft_matching_section",
+   "fieldtype": "Section Break",
+   "label": "Compusoft Matching"
+  },
+  {
+   "default": "Pending",
+   "description": "Status des Compusoft-Matchings",
+   "fieldname": "compusoft_match_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Match Status",
+   "options": "Pending\nPending - Awaiting PAYINFO\nMatched (Perfect)\nMatched (Partial)\nMatched (Mismatch)\nNo Match\nManual Review\nIgnored"
+  },
+  {
+   "description": "Kundennummer aus Compusoft (geparst aus Purpose)",
+   "fieldname": "compusoft_kunde_lbnr",
+   "fieldtype": "Int",
+   "in_standard_filter": 1,
+   "label": "Kunde LbNr",
+   "read_only": 1
+  },
+  {
+   "description": "Buchungsnummer aus Compusoft (geparst aus Purpose)",
+   "fieldname": "compusoft_booking_nr",
+   "fieldtype": "Int",
+   "in_standard_filter": 1,
+   "label": "Booking Nr",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_matching",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Zeitpunkt des letzten Matching-Versuchs",
+   "fieldname": "compusoft_last_matched",
+   "fieldtype": "Datetime",
+   "label": "Last Matched",
+   "read_only": 1
+  },
+  {
+   "description": "Qualit\u00e4t des Matches (100% = perfekt)",
+   "fieldname": "compusoft_match_score",
+   "fieldtype": "Percent",
+   "label": "Match Quality",
+   "read_only": 1
+  },
+  {
+   "description": "Summe aller gefundenen PAYINFO-Eintr\u00e4ge",
+   "fieldname": "compusoft_total_amount",
+   "fieldtype": "Currency",
+   "label": "Compusoft Total",
+   "read_only": 1,
+   "options": "EUR"
+  },
+  {
+   "description": "Detaillierte Matching-Informationen",
+   "fieldname": "compusoft_match_data",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Match Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "compusoft_match_display",
+   "fieldtype": "HTML",
+   "label": "Match Details",
+   "options": "EUR"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-17 11:49:48.511147",
+ "modified": "2026-01-06 23:52:28.974041",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Transaction",
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -218,7 +358,6 @@
    "write": 1
   },
   {
-   "create": 1,
    "email": 1,
    "export": 1,
    "print": 1,
@@ -229,7 +368,6 @@
    "write": 1
   },
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -243,5 +381,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

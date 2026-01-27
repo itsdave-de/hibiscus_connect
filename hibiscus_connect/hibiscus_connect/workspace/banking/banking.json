@@ -1,29 +1,32 @@
 {
- "charts": [
+ "charts": [],
+ "content": "[{\"id\": \"1434f3f58d\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\">Banking</span>\", \"col\": 12}}, {\"id\": \"quick_export_block\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Quick Export\", \"col\": 12}}, {\"id\": \"acc_status_block\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Banking Account Status\", \"col\": 6}}, {\"id\": \"health_block\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Banking Health\", \"col\": 6}}, {\"id\": \"76f1ac196f\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"e62bacacf9\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\">Transaktionen & Exporte</span>\", \"col\": 12}}, {\"id\": \"6ae2f9811c\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Transactions\", \"col\": 3}}, {\"id\": \"0e44b3dc68\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Statement Exports\", \"col\": 3}}, {\"id\": \"dcf284889f\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"9762742207\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h6\\\">Konfiguration</span>\", \"col\": 12}}, {\"id\": \"b26bafa739\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Bank Accounts\", \"col\": 3}}, {\"id\": \"3fb9c4d5b8\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Transaction Categories\", \"col\": 3}}, {\"id\": \"18114e8d55\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Settings\", \"col\": 3}}, {\"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sync Logs\", \"col\": 3}}, {\"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"GVCode Mapping\", \"col\": 3}}]",
+ "creation": "2024-07-24 14:16:16.989475",
+ "custom_blocks": [
   {
-   "chart_name": "offene Ausgangsrechnungen",
-   "label": "offene Ausgangsrechnungen"
+   "custom_block_name": "Banking Account Status",
+   "label": "Banking Account Status"
   },
   {
-   "chart_name": "Unverbuchte Zahlungseing\u00e4nge",
-   "label": "Unverbuchte Zahlungseing\u00e4nge"
+   "custom_block_name": "Quick Export",
+   "label": "Quick Export"
+  },
+  {
+   "custom_block_name": "Banking Health",
+   "label": "Banking Health"
   }
  ],
- "content": "[{\"id\":\"qxdKjVW-Xg\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Banking</span>\",\"col\":12}},{\"id\":\"mh6W07Zo5h\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction\",\"col\":3}},{\"id\":\"CdFFzH78No\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uGASuuLnKq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"offene Ausgangsrechnungen\",\"col\":6}},{\"id\":\"s4KRaBcgQ0\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Unverbuchte Zahlungseing\u00e4nge\",\"col\":6}},{\"id\":\"WXKqXRBCES\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"prjuFs46Uw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Bank Account\",\"col\":3}},{\"id\":\"VeExVRN1S-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction Category\",\"col\":3}},{\"id\":\"SH9QNBXMm-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Settings\",\"col\":3}}]",
- "creation": "2024-07-24 14:16:16.989475",
- "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
  "icon": "money-coins-1",
  "idx": 0,
- "indicator_color": "green",
  "is_hidden": 0,
  "label": "Banking",
  "links": [],
- "modified": "2024-10-11 10:44:54.223719",
- "modified_by": "D.Malinowski@itsdave.de",
+ "modified": "2026-01-07 00:29:10.376074",
+ "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Banking",
  "number_cards": [],
@@ -33,38 +36,6 @@
  "quick_lists": [],
  "roles": [],
  "sequence_id": 4.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Hibiscus Connect Transaction",
-   "link_to": "Hibiscus Connect Transaction",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Hibiscus Connect Bank Account",
-   "link_to": "Hibiscus Connect Bank Account",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Hibiscus Connect Transaction Category",
-   "link_to": "Hibiscus Connect Transaction Category",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Hibiscus Connect Settings",
-   "link_to": "Hibiscus Connect Settings",
-   "type": "DocType"
-  }
- ],
+ "shortcuts": [],
  "title": "Banking"
 }

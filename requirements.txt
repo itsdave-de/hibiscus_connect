@@ -1,1 +1,8 @@
 # frappe -- https://github.com/frappe/frappe is installed via 'bench init'
+
+# ISO 20022 message generation (camt.052, camt.053, etc.)
+pyiso20022>=0.2.0
+xsdata>=24.0
+
+# SMB/CIFS network share support for file export
+smbprotocol>=1.10.0

@@ -1,0 +1,245 @@
+{
+ "actions": [],
+ "autoname": "field:blz",
+ "creation": "2025-12-12 21:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_basic",
+  "blz",
+  "bic",
+  "merkmal",
+  "column_break_basic",
+  "bezeichnung",
+  "kurzbezeichnung",
+  "section_location",
+  "plz",
+  "ort",
+  "column_break_location",
+  "country",
+  "section_technical",
+  "pruefziffer_methode",
+  "pan",
+  "iban_regel",
+  "column_break_technical",
+  "datensatz_nr",
+  "section_change_tracking",
+  "aenderungskennzeichen",
+  "blz_loesch",
+  "column_break_change",
+  "nachfolge_blz",
+  "section_validity",
+  "valid_from",
+  "valid_until"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_basic",
+   "fieldtype": "Section Break",
+   "label": "Bank Information"
+  },
+  {
+   "fieldname": "blz",
+   "fieldtype": "Data",
+   "label": "BLZ",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "8-digit German bank code (Bankleitzahl)"
+  },
+  {
+   "fieldname": "bic",
+   "fieldtype": "Data",
+   "label": "BIC",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Bank Identifier Code (SWIFT code)"
+  },
+  {
+   "fieldname": "merkmal",
+   "fieldtype": "Select",
+   "label": "Merkmal",
+   "options": "\n1\n2",
+   "description": "1 = Manages BLZ, 2 = Does not manage BLZ"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bezeichnung",
+   "fieldtype": "Data",
+   "label": "Bank Name",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Full name of the payment service provider"
+  },
+  {
+   "fieldname": "kurzbezeichnung",
+   "fieldtype": "Data",
+   "label": "Short Name",
+   "in_list_view": 1,
+   "description": "Short name with city"
+  },
+  {
+   "fieldname": "section_location",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "plz",
+   "fieldtype": "Data",
+   "label": "PLZ",
+   "description": "Postal code"
+  },
+  {
+   "fieldname": "ort",
+   "fieldtype": "Data",
+   "label": "City",
+   "in_standard_filter": 1,
+   "description": "City name"
+  },
+  {
+   "fieldname": "column_break_location",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "default": "Germany",
+   "description": "Country for SEPA expansion support"
+  },
+  {
+   "fieldname": "section_technical",
+   "fieldtype": "Section Break",
+   "label": "Technical Details",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "pruefziffer_methode",
+   "fieldtype": "Data",
+   "label": "Check Digit Method",
+   "description": "Pruefziffer-Berechnungsmethode (00-99)"
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "PAN",
+   "description": "Institution number for PAN"
+  },
+  {
+   "fieldname": "iban_regel",
+   "fieldtype": "Data",
+   "label": "IBAN Rule",
+   "description": "IBAN rule indicator"
+  },
+  {
+   "fieldname": "column_break_technical",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "datensatz_nr",
+   "fieldtype": "Data",
+   "label": "Record Number",
+   "description": "Internal record number from Bundesbank"
+  },
+  {
+   "fieldname": "section_change_tracking",
+   "fieldtype": "Section Break",
+   "label": "Change Tracking",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "aenderungskennzeichen",
+   "fieldtype": "Select",
+   "label": "Change Indicator",
+   "options": "\nA\nM\nU\nD",
+   "description": "A=Added, M=Modified, U=Unchanged, D=Deleted"
+  },
+  {
+   "fieldname": "blz_loesch",
+   "fieldtype": "Check",
+   "label": "Deletion Planned",
+   "description": "Indicates planned deletion of this BLZ"
+  },
+  {
+   "fieldname": "column_break_change",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nachfolge_blz",
+   "fieldtype": "Data",
+   "label": "Successor BLZ",
+   "description": "Successor bank code after deletion"
+  },
+  {
+   "fieldname": "section_validity",
+   "fieldtype": "Section Break",
+   "label": "Validity Period",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "label": "Valid From",
+   "description": "Start date of BLZ file validity"
+  },
+  {
+   "fieldname": "valid_until",
+   "fieldtype": "Date",
+   "label": "Valid Until",
+   "description": "End date of BLZ file validity"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-12 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "Bank Code",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking User",
+   "share": 1
+  }
+ ],
+ "search_fields": "bezeichnung,kurzbezeichnung,bic,ort",
+ "sort_field": "blz",
+ "sort_order": "ASC",
+ "title_field": "bezeichnung",
+ "track_changes": 0
+}

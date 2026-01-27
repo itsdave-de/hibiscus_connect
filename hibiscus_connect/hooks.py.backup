@@ -119,9 +119,6 @@ scheduler_events = {
 	"hourly": [
 		"hibiscus_connect.tasks.fetch_transactions_from_active_accounts",
 		"hibiscus_connect.hibiscus_connect.doctype.bank_statement_export.bank_statement_export.process_scheduled_exports"
-	],
-	"daily": [
-		"hibiscus_connect.api.rematch_pending_transactions"
 	]
 }
 

@@ -1,0 +1,463 @@
+{
+ "actions": [],
+ "autoname": "format:BSEXP-{#####}",
+ "creation": "2025-12-11 14:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "protection_info",
+  "bank_account",
+  "description",
+  "column_break_general",
+  "account_info_html",
+  "account_holder",
+  "account_description",
+  "bic",
+  "account_type",
+  "currency",
+  "section_date_range",
+  "date_range_info",
+  "date_preset",
+  "from_date",
+  "to_date",
+  "column_break_date_range",
+  "export_format",
+  "status",
+  "section_automation",
+  "show_on_dashboard",
+  "dashboard_file_count",
+  "is_protected",
+  "column_break_automation",
+  "auto_generate_enabled",
+  "auto_generate_hour",
+  "skip_weekends",
+  "section_smb",
+  "smb_enabled",
+  "smb_server",
+  "smb_share",
+  "smb_path",
+  "smb_static_filename_enabled",
+  "smb_static_filename",
+  "smb_static_filename_warning",
+  "column_break_smb",
+  "smb_username",
+  "smb_password",
+  "smb_domain",
+  "smb_port",
+  "smb_status",
+  "section_balance",
+  "opening_balance",
+  "closing_balance",
+  "column_break_balance",
+  "transaction_count",
+  "section_files",
+  "generated_files_html",
+  "section_error",
+  "error_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "protection_info",
+   "fieldtype": "HTML",
+   "label": "Protection Info"
+  },
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Bank Account",
+   "options": "Hibiscus Connect Bank Account",
+   "reqd": 1,
+   "description": "Select the bank account to export"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description",
+   "in_list_view": 1,
+   "description": "Short description for this export (e.g. 'Monthly export for accounting')"
+  },
+  {
+   "fieldname": "section_date_range",
+   "fieldtype": "Section Break",
+   "label": "Date Range and Export Settings"
+  },
+  {
+   "fieldname": "date_range_info",
+   "fieldtype": "HTML",
+   "label": "Date Range Info"
+  },
+  {
+   "fieldname": "date_preset",
+   "fieldtype": "Select",
+   "label": "Date Range Preset",
+   "options": "\nYesterday\nDay Before Yesterday\nLast Business Day\nThis Week\nLast Week\nThis Month\nLast Month\nThis Year\nLast Year\nYear Before Last\nCustom",
+   "description": "Quick selection for common date ranges. Select 'Custom' to enter dates manually."
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1,
+   "description": "Start date for the statement period"
+  },
+  {
+   "fieldname": "column_break_date_range",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1,
+   "description": "End date for the statement period"
+  },
+  {
+   "fieldname": "export_format",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Export Format",
+   "options": "camt.052\ncamt.053\nMT940",
+   "reqd": 1,
+   "default": "camt.052",
+   "description": "Choose the export format: camt.052 (intraday/Proficash), camt.053 (end-of-day) or SWIFT MT940"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nGenerated\nError",
+   "default": "Draft",
+   "read_only": 1,
+   "description": "Current status of the export"
+  },
+  {
+   "fieldname": "section_automation",
+   "fieldtype": "Section Break",
+   "label": "Automation and Dashboard"
+  },
+  {
+   "fieldname": "show_on_dashboard",
+   "fieldtype": "Check",
+   "label": "Show on Dashboard",
+   "default": "0",
+   "description": "Display this export in the dashboard widget on the homepage"
+  },
+  {
+   "fieldname": "dashboard_file_count",
+   "fieldtype": "Int",
+   "label": "Dashboard File Count",
+   "default": "3",
+   "depends_on": "show_on_dashboard",
+   "description": "Number of recent files to show in the dashboard quick export widget (1-10)"
+  },
+  {
+   "fieldname": "is_protected",
+   "fieldtype": "Check",
+   "label": "Protected Export",
+   "default": "0",
+   "description": "When enabled, only users with the designated role can edit or delete this export. All users can still generate exports."
+  },
+  {
+   "fieldname": "column_break_automation",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_generate_enabled",
+   "fieldtype": "Check",
+   "label": "Auto Generate Enabled",
+   "default": "0",
+   "description": "Automatically generate this export at the specified hour"
+  },
+  {
+   "fieldname": "auto_generate_hour",
+   "fieldtype": "Int",
+   "label": "Auto Generate Hour",
+   "depends_on": "auto_generate_enabled",
+   "mandatory_depends_on": "auto_generate_enabled",
+   "description": "Hour of the day (0-23) when the export should be automatically generated"
+  },
+  {
+   "fieldname": "skip_weekends",
+   "fieldtype": "Check",
+   "label": "Skip Weekends",
+   "default": "1",
+   "depends_on": "auto_generate_enabled",
+   "description": "Skip automatic generation on Saturdays and Sundays. Recommended when using 'Last Business Day' preset to avoid duplicate files."
+  },
+  {
+   "fieldname": "section_smb",
+   "fieldtype": "Section Break",
+   "label": "SMB Export",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "smb_enabled",
+   "fieldtype": "Check",
+   "label": "Enable SMB Upload",
+   "default": "0",
+   "description": "Automatically upload generated files to an SMB/CIFS network share"
+  },
+  {
+   "fieldname": "smb_server",
+   "fieldtype": "Data",
+   "label": "SMB Server",
+   "depends_on": "smb_enabled",
+   "mandatory_depends_on": "smb_enabled",
+   "description": "Server hostname or IP address (e.g., fileserver.local or 192.168.1.100)"
+  },
+  {
+   "fieldname": "smb_share",
+   "fieldtype": "Data",
+   "label": "Share Name",
+   "depends_on": "smb_enabled",
+   "mandatory_depends_on": "smb_enabled",
+   "description": "Name of the shared folder (e.g., Banking)"
+  },
+  {
+   "fieldname": "smb_path",
+   "fieldtype": "Data",
+   "label": "Target Path",
+   "depends_on": "smb_enabled",
+   "description": "Path within the share (e.g., Exports/2025). Leave empty for share root."
+  },
+  {
+   "fieldname": "smb_static_filename_enabled",
+   "fieldtype": "Check",
+   "label": "Use Static Filename",
+   "default": "0",
+   "depends_on": "smb_enabled",
+   "description": "Use a fixed filename instead of the auto-generated name"
+  },
+  {
+   "fieldname": "smb_static_filename",
+   "fieldtype": "Data",
+   "label": "Static Filename",
+   "depends_on": "eval:doc.smb_enabled && doc.smb_static_filename_enabled",
+   "mandatory_depends_on": "smb_static_filename_enabled",
+   "description": "Fixed filename for SMB upload (e.g., bankexport.xml). Include the file extension."
+  },
+  {
+   "fieldname": "smb_static_filename_warning",
+   "fieldtype": "HTML",
+   "label": "Static Filename Warning",
+   "depends_on": "eval:doc.smb_enabled && doc.smb_static_filename_enabled"
+  },
+  {
+   "fieldname": "column_break_smb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "smb_username",
+   "fieldtype": "Data",
+   "label": "Username",
+   "depends_on": "smb_enabled",
+   "mandatory_depends_on": "smb_enabled",
+   "description": "Username for SMB authentication"
+  },
+  {
+   "fieldname": "smb_password",
+   "fieldtype": "Password",
+   "label": "Password",
+   "depends_on": "smb_enabled",
+   "mandatory_depends_on": "smb_enabled",
+   "description": "Password for SMB authentication"
+  },
+  {
+   "fieldname": "smb_domain",
+   "fieldtype": "Data",
+   "label": "Domain",
+   "depends_on": "smb_enabled",
+   "description": "Windows domain (optional, leave empty if not using Active Directory)"
+  },
+  {
+   "fieldname": "smb_port",
+   "fieldtype": "Int",
+   "label": "Port",
+   "depends_on": "smb_enabled",
+   "default": "445",
+   "description": "SMB port (default: 445)"
+  },
+  {
+   "fieldname": "smb_status",
+   "fieldtype": "Small Text",
+   "label": "SMB Status",
+   "read_only": 1,
+   "depends_on": "smb_enabled",
+   "description": "Status of the last SMB upload attempt"
+  },
+  {
+   "fieldname": "column_break_general",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "account_info_html",
+   "fieldtype": "HTML",
+   "label": "Account Info"
+  },
+  {
+   "fieldname": "account_holder",
+   "fieldtype": "Data",
+   "label": "Account Holder",
+   "read_only": 1,
+   "hidden": 1,
+   "fetch_from": "bank_account.account_holder",
+   "description": "Name of the account holder"
+  },
+  {
+   "fieldname": "account_description",
+   "fieldtype": "Data",
+   "label": "Account Description",
+   "read_only": 1,
+   "hidden": 1,
+   "fetch_from": "bank_account.description",
+   "description": "Description of the bank account"
+  },
+  {
+   "fieldname": "bic",
+   "fieldtype": "Data",
+   "label": "BIC",
+   "read_only": 1,
+   "hidden": 1,
+   "fetch_from": "bank_account.bic",
+   "description": "Bank Identifier Code"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Data",
+   "label": "Account Type",
+   "read_only": 1,
+   "hidden": 1,
+   "fetch_from": "bank_account.account_name_from_bank",
+   "description": "Account type as provided by the bank"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Currency",
+   "read_only": 1,
+   "hidden": 1,
+   "fetch_from": "bank_account.currency",
+   "default": "EUR",
+   "description": "Account currency"
+  },
+  {
+   "fieldname": "section_balance",
+   "fieldtype": "Section Break",
+   "label": "Balance Information"
+  },
+  {
+   "fieldname": "opening_balance",
+   "fieldtype": "Currency",
+   "label": "Opening Balance",
+   "read_only": 1,
+   "options": "currency",
+   "description": "Balance from the last transaction before the start date. Recalculated on each export."
+  },
+  {
+   "fieldname": "closing_balance",
+   "fieldtype": "Currency",
+   "label": "Closing Balance",
+   "read_only": 1,
+   "options": "currency",
+   "description": "Balance from the last transaction on or before the end date. Recalculated on each export."
+  },
+  {
+   "fieldname": "column_break_balance",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_count",
+   "fieldtype": "Int",
+   "label": "Transaction Count",
+   "read_only": 1,
+   "default": "0",
+   "description": "Number of transactions in the selected period"
+  },
+  {
+   "fieldname": "section_files",
+   "fieldtype": "Section Break",
+   "label": "Generated Files"
+  },
+  {
+   "fieldname": "generated_files_html",
+   "fieldtype": "HTML",
+   "label": "Generated Files",
+   "description": "List of generated export files"
+  },
+  {
+   "fieldname": "section_error",
+   "fieldtype": "Section Break",
+   "label": "Error Information",
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.status !== 'Error'"
+  },
+  {
+   "fieldname": "error_log",
+   "fieldtype": "Small Text",
+   "label": "Error Log",
+   "read_only": 1,
+   "description": "Error messages if generation failed"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2025-01-27 11:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "Bank Statement Export",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Banking User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

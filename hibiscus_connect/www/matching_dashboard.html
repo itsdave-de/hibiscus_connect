@@ -1,0 +1,873 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Matching Dashboard") }}{% endblock %}
+
+{% block head_include %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block page_content %}
+<div class="matching-dashboard-container">
+    <!-- Page Header mit Bulk-Matching Button -->
+    <div class="page-header d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1>📊 Matching Dashboard</h1>
+            <p class="text-muted mb-0">Übersicht über Hibiscus ↔ Compusoft PAYINFO Matching-Ergebnisse</p>
+        </div>
+        <div class="text-right">
+            <button class="btn btn-lg btn-success" id="bulk-match-btn" onclick="startBulkMatching()">
+                <i class="fa fa-play-circle"></i> Bulk-Matching starten
+            </button>
+        </div>
+    </div>
+
+    <!-- Job-Status-Anzeige -->
+    <div class="card mb-4" id="job-status-card" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">
+                    <i class="fa fa-sync fa-spin text-primary" id="job-status-icon"></i>
+                    <span id="job-status-title">Matching-Job läuft...</span>
+                </h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="clearJobStatus()">
+                    <i class="fa fa-times"></i> Schließen
+                </button>
+            </div>
+            <div class="progress mb-2" style="height: 25px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     id="job-progress-bar"
+                     style="width: 0%">
+                    <span id="job-progress-text">0%</span>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <small class="text-muted">Verarbeitet</small><br>
+                    <strong id="job-processed">0</strong> / <span id="job-total">0</span>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Gematcht</small><br>
+                    <strong class="text-success" id="job-matched">0</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Fehler</small><br>
+                    <strong class="text-danger" id="job-errors">0</strong>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Status</small><br>
+                    <span class="badge badge-primary" id="job-status-badge">Läuft</span>
+                </div>
+            </div>
+            <div id="job-results" style="display: none;" class="mt-3">
+                <hr>
+                <h6>Ergebnisse:</h6>
+                <div class="row">
+                    <div class="col-md-2">
+                        <small class="text-muted">Perfect</small><br>
+                        <strong class="text-success" id="result-perfect">0</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-muted">Partial</small><br>
+                        <strong class="text-warning" id="result-partial">0</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-muted">Mismatch</small><br>
+                        <strong class="text-danger" id="result-mismatch">0</strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Pending PAYINFO</small><br>
+                        <strong class="text-info" id="result-pending">0</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <small class="text-muted">No Match</small><br>
+                        <strong class="text-secondary" id="result-nomatch">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ladeindikator -->
+    <div class="loading-indicator" id="loading">
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Lädt...</span>
+            </div>
+            <p class="mt-2">Lade Daten...</p>
+        </div>
+    </div>
+
+    <!-- Statistik-KPIs -->
+    <div id="kpi-section" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="kpi-card card border-primary">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Gesamt-Transaktionen</h6>
+                        <h2 class="mb-0" id="kpi-total">-</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card card border-success">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Erfolgreich Gematcht</h6>
+                        <h2 class="mb-0" id="kpi-matched">-</h2>
+                        <small class="text-success" id="kpi-match-rate">0%</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card card border-warning">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Warten auf PAYINFO</h6>
+                        <h2 class="mb-0" id="kpi-pending-payinfo">-</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card card border-danger">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Kein Match</h6>
+                        <h2 class="mb-0" id="kpi-no-match">-</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rest des Dashboards (Tabs etc.) bleibt gleich -->
+    <div id="content-section" style="display: none;">
+        <ul class="nav nav-tabs mb-3" id="dashboard-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="statistics-tab" data-toggle="tab" href="#statistics" role="tab">
+                    📈 Statistik
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="recent-tab" data-toggle="tab" href="#recent" role="tab">
+                    🕒 Letzte Matches
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pending-tab" data-toggle="tab" href="#pending" role="tab">
+                    ⏳ Warten auf PAYINFO
+                    <span class="badge badge-warning" id="pending-badge">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="dashboard-tab-content">
+            <!-- Statistik Tab -->
+            <div class="tab-pane fade show active" id="statistics" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Status-Verteilung</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="status-table">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th class="text-right">Anzahl</th>
+                                        <th class="text-right">Gesamt-Betrag</th>
+                                        <th class="text-right">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Durchschnittliche Match-Qualität</h6>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar bg-success" role="progressbar" id="avg-quality-bar" style="width: 0%">
+                                    <span id="avg-quality-text">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letzte Matches Tab -->
+            <div class="tab-pane fade" id="recent" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Letzte Matching-Ergebnisse</h5>
+                        <button class="btn btn-sm btn-primary" onclick="refreshRecentMatches()">
+                            <i class="fa fa-refresh"></i> Aktualisieren
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" id="recent-matches-table">
+                                <thead>
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th>Transaction</th>
+                                        <th>Kunde</th>
+                                        <th class="text-right">Betrag</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Match-Qualität</th>
+                                        <th>Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending PAYINFO Tab -->
+            <div class="tab-pane fade" id="pending" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Warten auf PAYINFO-Daten</h5>
+                        <button class="btn btn-sm btn-warning" onclick="triggerRematch()">
+                            <i class="fa fa-sync"></i> Re-Matching starten
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <strong>ℹ Info:</strong> Diese Transaktionen haben einen passenden Kunden und eine Reservierung gefunden,
+                            aber die PAYINFO-Daten sind in Compusoft noch nicht vorhanden.
+                            Normalerweise werden diese nach 3-7 Tagen verfügbar sein.
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" id="pending-payinfo-table">
+                                <thead>
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th>Transaction</th>
+                                        <th>Kunde</th>
+                                        <th>Booking Nr</th>
+                                        <th class="text-right">Betrag</th>
+                                        <th class="text-right">Wartezeit</th>
+                                        <th>Letzter Check</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Refresh -->
+    <div class="mt-3 text-muted text-center">
+        <small>
+            Letzte Aktualisierung: <span id="last-update">-</span>
+            <span class="ml-3">
+                <input type="checkbox" id="auto-refresh" checked>
+                <label for="auto-refresh" class="mb-0 ml-1">Auto-Refresh (60s)</label>
+            </span>
+        </small>
+    </div>
+</div>
+
+<style>
+.matching-dashboard-container {
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 20px;
+}
+
+.page-header h1 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+#job-status-card {
+    border-left: 4px solid #007bff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+#job-status-card.job-completed {
+    border-left-color: #28a745;
+}
+
+#job-status-card.job-failed {
+    border-left-color: #dc3545;
+}
+
+.loading-indicator {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.kpi-card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.kpi-card h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.kpi-card h6 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-perfect {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-partial {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-mismatch {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-pending-payinfo {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-no-match {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.quality-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.quality-high {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.quality-medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.quality-low {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.waiting-days {
+    font-weight: 600;
+}
+
+.waiting-days.can-rematch {
+    color: #28a745;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #6c757d;
+    border-top: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+</style>
+
+<script>
+let autoRefreshInterval = null;
+let jobStatusInterval = null;
+
+// Warte auf jQuery
+(function() {
+    function initDashboard() {
+        if (typeof $ === 'undefined' || typeof frappe === 'undefined') {
+            setTimeout(initDashboard, 100);
+            return;
+        }
+
+        $(document).ready(function() {
+            loadDashboardData();
+            checkJobStatus(); // Prüfe ob Job läuft
+
+            // Auto-Refresh Setup
+            $('#auto-refresh').on('change', function() {
+                if (this.checked) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
+
+            // Starte Auto-Refresh
+            startAutoRefresh();
+        });
+    }
+
+    initDashboard();
+})();
+
+function startAutoRefresh() {
+    stopAutoRefresh();
+    autoRefreshInterval = setInterval(function() {
+        if ($('#auto-refresh').is(':checked')) {
+            loadDashboardData();
+        }
+    }, 60000);
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+function startBulkMatching() {
+    // Einfacher Browser-Prompt statt frappe.prompt
+    var limit = prompt('Anzahl Transaktionen zum Matchen:', '1000');
+    
+    if (limit === null || limit === '') {
+        return; // User hat abgebrochen
+    }
+    
+    limit = parseInt(limit);
+    
+    if (isNaN(limit) || limit <= 0) {
+        alert('Bitte geben Sie eine gültige Zahl ein.');
+        return;
+    }
+    
+    // Starte Job
+    frappe.call({
+        method: 'hibiscus_connect.api.start_bulk_matching_job',
+        args: {
+            limit: limit
+        },
+        callback: function(r) {
+            if (r.message && r.message.status === 'success') {
+                frappe.show_alert({
+                    message: 'Bulk-Matching Job wurde gestartet',
+                    indicator: 'green'
+                }, 5);
+
+                // Zeige Job-Status-Card
+                $('#job-status-card').slideDown();
+
+                // Starte Job-Status Polling
+                startJobStatusPolling();
+
+                // Deaktiviere Button
+                $('#bulk-match-btn').prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-spin"></i> Job läuft...');
+
+            } else {
+                alert('Fehler: ' + (r.message.message || 'Fehler beim Starten des Jobs'));
+            }
+        },
+        error: function(r) {
+            alert('Fehler beim Starten des Jobs: ' + (r.message || 'Unbekannter Fehler'));
+        }
+    });
+}
+
+function checkJobStatus() {
+    frappe.call({
+        method: 'hibiscus_connect.api.get_matching_job_status',
+        callback: function(r) {
+            if (r.message && r.message.is_running) {
+                // Job läuft - zeige Status-Card
+                updateJobStatusUI(r.message);
+                $('#job-status-card').show();
+
+                // Starte Polling
+                startJobStatusPolling();
+
+                // Deaktiviere Button
+                $('#bulk-match-btn').prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-spin"></i> Job läuft...');
+            }
+        }
+    });
+}
+
+function startJobStatusPolling() {
+    // Stoppe vorheriges Polling
+    stopJobStatusPolling();
+
+    // Poll alle 3 Sekunden
+    jobStatusInterval = setInterval(function() {
+        frappe.call({
+            method: 'hibiscus_connect.api.get_matching_job_status',
+            callback: function(r) {
+                if (r.message) {
+                    updateJobStatusUI(r.message);
+
+                    // Stoppe Polling wenn Job fertig
+                    if (!r.message.is_running) {
+                        stopJobStatusPolling();
+
+                        // Aktiviere Button wieder
+                        $('#bulk-match-btn').prop('disabled', false)
+                            .html('<i class="fa fa-play-circle"></i> Bulk-Matching starten');
+
+                        // Reload Dashboard Daten
+                        loadDashboardData();
+                    }
+                }
+            }
+        });
+    }, 3000); // 3 Sekunden
+}
+
+function stopJobStatusPolling() {
+    if (jobStatusInterval) {
+        clearInterval(jobStatusInterval);
+        jobStatusInterval = null;
+    }
+}
+
+function updateJobStatusUI(jobStatus) {
+    const status = jobStatus.status;
+    const progress = jobStatus.progress || 0;
+
+    // Update Progress Bar
+    $('#job-progress-bar').css('width', progress + '%');
+    $('#job-progress-text').text(progress + '%');
+
+    // Update Stats
+    $('#job-processed').text(jobStatus.processed || 0);
+    $('#job-total').text(jobStatus.total || 0);
+    $('#job-matched').text(jobStatus.matched_count || 0);
+    $('#job-errors').text(jobStatus.error_count || 0);
+
+    // Update Status Badge
+    let badgeClass = 'badge-primary';
+    let statusText = 'Läuft';
+    let iconClass = 'fa-sync fa-spin';
+
+    if (status === 'completed') {
+        badgeClass = 'badge-success';
+        statusText = 'Abgeschlossen';
+        iconClass = 'fa-check-circle';
+        $('#job-status-card').addClass('job-completed').removeClass('job-failed');
+        $('#job-status-title').html('<i class="fa fa-check-circle text-success"></i> Matching-Job abgeschlossen!');
+
+        // Zeige Ergebnisse
+        if (jobStatus.results) {
+            $('#result-perfect').text(jobStatus.results.matched_perfect || 0);
+            $('#result-partial').text(jobStatus.results.matched_partial || 0);
+            $('#result-mismatch').text(jobStatus.results.matched_mismatch || 0);
+            $('#result-pending').text(jobStatus.results.pending_payinfo || 0);
+            $('#result-nomatch').text(jobStatus.results.no_match || 0);
+            $('#job-results').show();
+        }
+
+        // Progress Bar auf grün
+        $('#job-progress-bar').removeClass('progress-bar-animated')
+            .removeClass('bg-primary')
+            .addClass('bg-success');
+
+    } else if (status === 'failed') {
+        badgeClass = 'badge-danger';
+        statusText = 'Fehler';
+        iconClass = 'fa-exclamation-circle';
+        $('#job-status-card').addClass('job-failed').removeClass('job-completed');
+        $('#job-status-title').html('<i class="fa fa-exclamation-circle text-danger"></i> Matching-Job fehlgeschlagen');
+
+        // Progress Bar auf rot
+        $('#job-progress-bar').removeClass('progress-bar-animated')
+            .removeClass('bg-primary')
+            .addClass('bg-danger');
+
+    } else if (status === 'queued') {
+        statusText = 'Warteschlange';
+    }
+
+    $('#job-status-badge').removeClass('badge-primary badge-success badge-danger badge-warning')
+        .addClass(badgeClass)
+        .text(statusText);
+    
+    // Update Icon
+    $('#job-status-icon').removeClass('fa-sync fa-spin fa-check-circle fa-exclamation-circle text-primary text-success text-danger')
+        .addClass(iconClass);
+    
+    if (status === 'completed') {
+        $('#job-status-icon').addClass('text-success');
+    } else if (status === 'failed') {
+        $('#job-status-icon').addClass('text-danger');
+    } else {
+        $('#job-status-icon').addClass('text-primary');
+    }
+}
+
+function clearJobStatus() {
+    frappe.call({
+        method: 'hibiscus_connect.api.clear_matching_job_status',
+        callback: function(r) {
+            $('#job-status-card').slideUp();
+            stopJobStatusPolling();
+
+            // Aktiviere Button wieder
+            $('#bulk-match-btn').prop('disabled', false)
+                .html('<i class="fa fa-play-circle"></i> Bulk-Matching starten');
+
+            frappe.show_alert({
+                message: 'Job-Status gelöscht',
+                indicator: 'blue'
+            }, 2);
+        }
+    });
+}
+
+// Rest der Funktionen (renderStatistics, loadRecentMatches etc.) bleiben gleich
+// ... (Ich füge die ursprünglichen Funktionen am Ende hinzu)
+
+function loadDashboardData() {
+    showLoading(true);
+    frappe.call({
+        method: 'hibiscus_connect.api.get_matching_statistics',
+        callback: function(r) {
+            if (r.message) {
+                renderStatistics(r.message);
+            }
+        }
+    });
+    loadRecentMatches();
+    loadPendingPayinfo();
+    updateLastRefreshTime();
+}
+
+function renderStatistics(data) {
+    document.getElementById('kpi-total').textContent = formatNumber(data.total_transactions);
+    document.getElementById('kpi-matched').textContent = formatNumber(data.matched_count);
+    document.getElementById('kpi-match-rate').textContent = data.match_rate + '%';
+    document.getElementById('kpi-pending-payinfo').textContent = formatNumber(data.pending_payinfo_count);
+    document.getElementById('kpi-no-match').textContent = formatNumber(data.no_match_count);
+    document.getElementById('pending-badge').textContent = data.pending_payinfo_count;
+
+    $('#avg-quality-bar').css('width', data.avg_quality + '%');
+    $('#avg-quality-text').text(data.avg_quality + '%');
+
+    let statusHtml = '';
+    let statusLabels = {
+        'Pending': 'Noch nicht gematcht',
+        'Pending - Awaiting PAYINFO': 'Warten auf PAYINFO',
+        'Matched (Perfect)': 'Perfekter Match',
+        'Matched (Partial)': 'Teilweise gematcht (Anzahlung)',
+        'Matched (Mismatch)': 'Abweichung',
+        'No Match': 'Kein Match',
+        'Manual Review': 'Manuelle Prüfung',
+        'Ignored': 'Ignoriert'
+    };
+
+    data.status_distribution.forEach(function(row) {
+        let status = row.compusoft_match_status || '(Leer)';
+        let label = statusLabels[status] || status;
+        let percentage = data.total_transactions > 0 ? ((row.count / data.total_transactions) * 100).toFixed(2) : 0;
+        statusHtml += '<tr><td><span class="status-badge ' + getStatusClass(status) + '">' + label + '</span></td><td class="text-right">' + formatNumber(row.count) + '</td><td class="text-right">' + formatCurrency(row.total_amount) + '</td><td class="text-right">' + percentage + '%</td></tr>';
+    });
+
+    $('#status-table tbody').html(statusHtml);
+    showLoading(false);
+}
+
+function loadRecentMatches() {
+    frappe.call({
+        method: 'hibiscus_connect.api.get_recent_matches',
+        args: { limit: 20 },
+        callback: function(r) {
+            if (r.message) {
+                renderRecentMatches(r.message);
+            }
+        }
+    });
+}
+
+function renderRecentMatches(data) {
+    let html = '';
+    data.forEach(function(tx) {
+        let statusClass = getStatusClass(tx.compusoft_match_status);
+        let qualityBadge = getQualityBadge(tx.compusoft_match_score);
+        let anzahlungBadge = tx.is_anzahlung ? '<br><small class="text-warning">Anzahlung: ' + tx.anzahlung_percentage.toFixed(1) + '%</small>' : '';
+        html += '<tr onclick="openTransaction(\'' + tx.name + '\')"><td>' + formatDate(tx.transaction_date) + '</td><td><strong>' + tx.name + '</strong><br><small class="text-muted">' + truncate(tx.purpose, 50) + '</small></td><td>' + (tx.kunde_name || tx.counterparty_name || '-') + '<br><small class="text-muted">' + (tx.compusoft_kunde_lbnr ? 'LbNr: ' + tx.compusoft_kunde_lbnr : '') + (tx.compusoft_booking_nr ? ' | Booking: ' + tx.compusoft_booking_nr : '') + '</small></td><td class="text-right"><strong>' + formatCurrency(tx.amount) + '</strong><br>' + (tx.compusoft_total_amount ? '<small class="text-muted">CS: ' + formatCurrency(tx.compusoft_total_amount) + '</small>' : '') + '</td><td><span class="status-badge ' + statusClass + '">' + getStatusLabel(tx.compusoft_match_status) + '</span>' + anzahlungBadge + '</td><td class="text-right">' + qualityBadge + '</td><td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); openTransaction(\'' + tx.name + '\')"><i class="fa fa-eye"></i></button></td></tr>';
+    });
+    $('#recent-matches-table tbody').html(html || '<tr><td colspan="7" class="text-center text-muted">Keine Daten verfügbar</td></tr>');
+}
+
+function loadPendingPayinfo() {
+    frappe.call({
+        method: 'hibiscus_connect.api.get_pending_payinfo_list',
+        args: { limit: 50 },
+        callback: function(r) {
+            if (r.message) {
+                renderPendingPayinfo(r.message);
+            }
+        }
+    });
+}
+
+function renderPendingPayinfo(data) {
+    let html = '';
+    data.forEach(function(tx) {
+        let waitingClass = tx.can_rematch ? 'can-rematch' : '';
+        html += '<tr onclick="openTransaction(\'' + tx.name + '\')"><td>' + formatDate(tx.transaction_date) + '</td><td><strong>' + tx.name + '</strong><br><small class="text-muted">' + truncate(tx.purpose, 40) + '</small></td><td>' + (tx.kunde_name || tx.counterparty_name || '-') + '<br><small class="text-muted">LbNr: ' + (tx.compusoft_kunde_lbnr || '-') + '</small></td><td>' + (tx.compusoft_booking_nr || '-') + '</td><td class="text-right"><strong>' + formatCurrency(tx.amount) + '</strong></td><td class="text-right"><span class="waiting-days ' + waitingClass + '">' + tx.waiting_days + ' Tage</span>' + (tx.can_rematch ? '<br><small class="text-success">✓ Kann re-matched werden</small>' : '') + '</td><td><small>' + formatDateTime(tx.compusoft_last_matched) + '</small></td></tr>';
+    });
+    $('#pending-payinfo-table tbody').html(html || '<tr><td colspan="7" class="text-center text-muted">Keine Transaktionen warten auf PAYINFO</td></tr>');
+}
+
+function triggerRematch() {
+    frappe.confirm('Möchten Sie das Re-Matching für alle wartenden Transaktionen starten?', function() {
+        frappe.call({
+            method: 'hibiscus_connect.api.rematch_pending_transactions',
+            freeze: true,
+            freeze_message: 'Re-Matching läuft...',
+            callback: function(r) {
+                if (r.message) {
+                    frappe.msgprint({ title: 'Re-Matching abgeschlossen', indicator: 'green', message: '<strong>Ergebnis:</strong><br>Total: ' + r.message.total + '<br>Re-matched: ' + r.message.rematched + '<br>Jetzt gematcht: ' + r.message.now_matched + '<br>Noch Pending: ' + r.message.still_pending + '<br>Fehler: ' + r.message.errors });
+                    loadDashboardData();
+                }
+            }
+        });
+    });
+}
+
+function refreshRecentMatches() {
+    loadRecentMatches();
+    frappe.show_alert({message: 'Daten aktualisiert', indicator: 'green'}, 2);
+}
+
+function openTransaction(txName) {
+    window.open('/app/hibiscus-connect-transaction/' + txName, '_blank');
+}
+
+function showLoading(show) {
+    if (show) {
+        $('#loading').show();
+        $('#kpi-section').hide();
+        $('#content-section').hide();
+    } else {
+        $('#loading').hide();
+        $('#kpi-section').show();
+        $('#content-section').show();
+    }
+}
+
+function updateLastRefreshTime() {
+    let now = new Date();
+    $('#last-update').text(now.toLocaleTimeString('de-DE'));
+}
+
+function getStatusClass(status) {
+    const classMap = {
+        'Matched (Perfect)': 'status-perfect',
+        'Matched (Partial)': 'status-partial',
+        'Matched (Mismatch)': 'status-mismatch',
+        'Pending - Awaiting PAYINFO': 'status-pending-payinfo',
+        'No Match': 'status-no-match'
+    };
+    return classMap[status] || 'status-no-match';
+}
+
+function getStatusLabel(status) {
+    const labelMap = {
+        'Matched (Perfect)': 'Perfect',
+        'Matched (Partial)': 'Partial',
+        'Matched (Mismatch)': 'Mismatch',
+        'Pending - Awaiting PAYINFO': 'Warte auf PAYINFO',
+        'No Match': 'Kein Match'
+    };
+    return labelMap[status] || status;
+}
+
+function getQualityBadge(score) {
+    if (!score) return '<span class="text-muted">-</span>';
+    let scorePercent = score; // Score ist bereits in Prozent gespeichert
+    let className = scorePercent >= 95 ? 'quality-high' : scorePercent >= 60 ? 'quality-medium' : 'quality-low';
+    return '<span class="quality-badge ' + className + '">' + scorePercent.toFixed(0) + '%</span>';
+}
+
+function formatNumber(num) {
+    return num ? num.toLocaleString('de-DE') : '0';
+}
+
+function formatCurrency(amount) {
+    return amount ? amount.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €' : '0,00 €';
+}
+
+function formatDate(date) {
+    if (!date) return '-';
+    let d = new Date(date);
+    return d.toLocaleDateString('de-DE');
+}
+
+function formatDateTime(datetime) {
+    if (!datetime) return '-';
+    let d = new Date(datetime);
+    return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE');
+}
+
+function truncate(str, len) {
+    if (!str) return '';
+    return str.length > len ? str.substring(0, len) + '...' : str;
+}
+</script>
+
+{% endblock %}
