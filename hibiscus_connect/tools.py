@@ -105,18 +105,32 @@ def match_hibiscus_transaction(hib_trans):
     result = match_payment(hib_trans)
     if result["sinvs_matched_strict"]:
         pe = make_payment_entry(result)
+        if not pe:
+            frappe.throw("Payment Entry konnte nicht erstellt werden (keine zuordenbaren Rechnungen).")
         create_bank_account_for_customer(pe.party, hib_trans["empfaenger_konto"], hib_trans["empfaenger_blz"])
         return "Erfolgreich verbucht strict"
     if result["sinvs_matched_loose"]:
         pe = make_payment_entry(result)
+        if not pe:
+            frappe.throw("Payment Entry konnte nicht erstellt werden (keine zuordenbaren Rechnungen).")
         create_bank_account_for_customer(pe.party, hib_trans["empfaenger_konto"], hib_trans["empfaenger_blz"])
         return "Erfolgreich verbucht loose"
     if result["sinvs_matched_cust"]:
         pe = make_payment_entry(result)
+        if not pe:
+            frappe.throw("Payment Entry konnte nicht erstellt werden (keine zuordenbaren Rechnungen).")
         create_bank_account_for_customer(pe.party, hib_trans["empfaenger_konto"], hib_trans["empfaenger_blz"])
         return "Erfolgreich verbucht Kunde"
+    # Doppelzahlung markieren wenn erkannt
+    if result.get("duplicate_warning"):
+        hib_trans_doc = result["hib_trans_doc"]
+        hib_trans_doc.status = "mögliche Doppelzahlung"
+        hib_trans_doc.protokoll = "Mögliche Doppelzahlung erkannt:\n" + "\n".join(result["duplicate_warning"])
+        hib_trans_doc.save()
+        frappe.throw("Mögliche Doppelzahlung erkannt:<br>" + "<br>".join(result["duplicate_warning"]))
+
     frappe.throw("Zahlung konnte nicht automatisiert verbucht werden.<br>" + str(result))
-    
+
 
 def match_payment(hib_trans, sinvs=None, sinv_names=None):
     hib_trans_doc = frappe.get_doc("Hibiscus Connect Transaction", hib_trans)
@@ -182,10 +196,14 @@ def match_payment(hib_trans, sinvs=None, sinv_names=None):
             matching_list["totals_matched"] = True
             print("183 ", matching_list)
             return matching_list
+    # Keine Stufe hat gematcht — prüfen ob es eine Doppelzahlung sein könnte
+    duplicate_details = _check_duplicate_payment(hib_trans_doc)
+    if duplicate_details:
+        matching_list["duplicate_warning"] = duplicate_details
+
     return matching_list
 
-    
-    
+
 @frappe.whitelist()
 def match_all_payments(von = str(date.today()-timedelta(30)), bis = str(date.today())):
     stats = {
@@ -213,20 +231,29 @@ def match_all_payments(von = str(date.today()-timedelta(30)), bis = str(date.tod
         if result["sinvs_matched_strict"]:
             stats["sinvs_matched_strict"] += 1
             pe = make_payment_entry(result)
-            create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
+            if pe:
+                create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
         if result["sinvs_matched_loose"]:
             stats["sinvs_matched_loose"] += 1
             pe = make_payment_entry(result)
-            create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
+            if pe:
+                create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
         if result["sinvs_matched_cust"]:
             stats["sinvs_matched_cust"] += 1
             print(result)
             pe = make_payment_entry(result)
-            create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
+            if pe:
+                create_bank_account_for_customer(pe.party, p["empfaenger_konto"], p["empfaenger_blz"])
         if result["totals_matched"]:
             stats["totals_matched"] += 1
         else:
             debug_data(result)
+            # Doppelzahlung markieren wenn erkannt
+            if result.get("duplicate_warning"):
+                hib_trans_doc = result["hib_trans_doc"]
+                hib_trans_doc.status = "mögliche Doppelzahlung"
+                hib_trans_doc.protokoll = "Mögliche Doppelzahlung erkannt:\n" + "\n".join(result["duplicate_warning"])
+                hib_trans_doc.save()
         
         frappe.publish_progress(
 			count * 100 / len(payments),
@@ -362,10 +389,45 @@ def _get_sinv_names(zweck, sinvs=None, extended_matching=True):
         for m in match_regex_naming_series:
             if m not in sinv_name_list:
                 if frappe.db.exists("Sales Invoice", m):
+                    # Nur unbezahlte Rechnungen matchen
+                    if sinvs is not None:
+                        sinv_number = str(m).split("-")[1]
+                        if sinv_number not in sinvs:
+                            print(f"Sales Invoice {m} ist bereits bezahlt und wird übersprungen.")
+                            continue
                     sinv_name_list.append(m)
                 else:
                     print(f"Sales Invoice {m} does not exist and will be skipped.")
     return sinv_name_list
+
+
+def _check_duplicate_payment(hib_trans_doc):
+    """Prüft ob im Verwendungszweck Rechnungsnummern stehen, die bereits bezahlt sind."""
+    all_sinvs_in_zweck = _get_sinv_names(hib_trans_doc.zweck)  # ohne sinvs-Filter → findet auch bezahlte
+    if not all_sinvs_in_zweck:
+        return None
+
+    duplicate_details = []
+    for sinv_name in all_sinvs_in_zweck:
+        sinv_doc = frappe.get_doc("Sales Invoice", sinv_name)
+        if sinv_doc.outstanding_amount > 0:
+            continue
+        # Rechnung ist vollständig bezahlt — welcher PE hat sie bezahlt?
+        pe_refs = frappe.get_all("Payment Entry Reference",
+            filters={
+                "reference_name": sinv_name,
+                "reference_doctype": "Sales Invoice",
+                "docstatus": 1
+            },
+            fields=["parent", "allocated_amount"])
+        pe_detail = ""
+        for ref in pe_refs:
+            pe_posting_date = frappe.db.get_value("Payment Entry", ref["parent"], "posting_date")
+            pe_detail = f" (bezahlt durch {ref['parent']} vom {pe_posting_date}, {ref['allocated_amount']} EUR)"
+            break
+        duplicate_details.append(f"{sinv_name} wurde im Verwendungszweck gefunden, ist aber bereits vollständig bezahlt{pe_detail}.")
+
+    return duplicate_details if duplicate_details else None
 
 
 def _get_grand_totals(sinv_list):
@@ -373,7 +435,7 @@ def _get_grand_totals(sinv_list):
     for sinv in sinv_list:
         if frappe.db.exists("Sales Invoice", sinv):
             sinv_doc = frappe.get_doc("Sales Invoice", sinv)
-            grand_total_sum += sinv_doc.grand_total
+            grand_total_sum += sinv_doc.outstanding_amount
         else:
             print(f"Sales Invoice {sinv} does not exist and will be skipped.")
     return round(grand_total_sum, 2)
@@ -383,6 +445,15 @@ def make_payment_entry(matching_list, settings=None):
     other_account_sinv = []
     if not settings:
         settings = frappe.get_single("Hibiscus Connect Settings")
+
+    todo = list(matching_list["sinvs"])
+    todo.extend(x for x in matching_list["sinvs_loose"] if x not in todo)
+    todo.extend(x for x in matching_list["sinvs_cust"] if x not in todo)
+    todo.sort()
+
+    if not todo:
+        frappe.msgprint("Keine zuordenbaren Rechnungen gefunden für Transaktion " + matching_list["hib_trans_doc"].name)
+        return None
 
     pe_doc = frappe.get_doc({
         "doctype": "Payment Entry",
@@ -402,11 +473,6 @@ def make_payment_entry(matching_list, settings=None):
         "referneces": []
     })
 
-    todo = list(matching_list["sinvs"])
-    todo.extend(x for x in matching_list["sinvs_loose"] if x not in todo)
-    todo.extend(x for x in matching_list["sinvs_cust"] if x not in todo)
-
-    todo.sort()
     error = ""
     print(todo)
     for sinv in todo:
@@ -458,6 +524,9 @@ def make_payment_entry(matching_list, settings=None):
         return pe_doc
    
     if settings.submit_pe:
+        if not pe_doc.references or len(pe_doc.references) == 0:
+            frappe.msgprint("Payment Entry " + pe_doc.name + " hat keine Rechnungszuordnung und wird nicht automatisch gebucht.")
+            return pe_doc
         if pe_doc.difference_amount != 0:
             frappe.msgprint("Zahlung konnte nicht automatisiert verbucht werden. Es kamen mehrere identische Beträge in Frage.<br>" + dict_to_html_ul(matching_list,2))
             return pe_doc

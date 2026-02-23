@@ -9,6 +9,8 @@ frappe.listview_settings['Hibiscus Connect Transaction'] = {
 			return [__("automatisch verbucht"), "green", "status,=,automatisch verbucht"];
         } else if (doc.status === "manuell verbucht") {
 			return [__("manuell verbucht"), "green", "status,=,manuell verbucht"];
+        } else if (doc.status === "mögliche Doppelzahlung") {
+			return [__("mögliche Doppelzahlung"), "red", "status,=,mögliche Doppelzahlung"];
         }
     },
 	onload: function(listview) {

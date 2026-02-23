@@ -154,7 +154,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "neu\nautomatisch verbucht\nteilweise automatisch verbucht\nmanuell verbucht\nteilweise verbucht\nlegacy verbucht\nabgebrochen\nandere Einnahme"
+   "options": "neu\nautomatisch verbucht\nteilweise automatisch verbucht\nmanuell verbucht\nteilweise verbucht\nlegacy verbucht\nabgebrochen\nandere Einnahme\nmögliche Doppelzahlung"
   },
   {
    "fieldname": "transaktion_section",
