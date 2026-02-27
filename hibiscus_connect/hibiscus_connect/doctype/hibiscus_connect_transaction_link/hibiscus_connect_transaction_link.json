@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "creation": "2026-02-27 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "link_doctype",
+  "link_name",
+  "link_title",
+  "column_break_1",
+  "link_status",
+  "betrag",
+  "verknuepft_am",
+  "column_break_2",
+  "bemerkung"
+ ],
+ "fields": [
+  {
+   "fieldname": "link_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "link_name",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Dokument",
+   "options": "link_doctype",
+   "reqd": 1
+  },
+  {
+   "fieldname": "link_title",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Titel"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "aktiv",
+   "fieldname": "link_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "aktiv\nstorniert\nersetzt",
+   "reqd": 1
+  },
+  {
+   "fieldname": "betrag",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Betrag"
+  },
+  {
+   "fieldname": "verknuepft_am",
+   "fieldtype": "Datetime",
+   "label": "Verknüpft am",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bemerkung",
+   "fieldtype": "Small Text",
+   "label": "Bemerkung"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-27 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "Hibiscus Connect Transaction Link",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

@@ -14,7 +14,7 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/hibiscus_connect/css/hibiscus_connect.css"
-# app_include_js = "/assets/hibiscus_connect/js/hibiscus_connect.js"
+# app_include_js = "/assets/hibiscus_connect/js/sepa_dashboard.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/hibiscus_connect/css/hibiscus_connect.css"
@@ -110,9 +110,11 @@ doc_events = {
 # ---------------
 
 scheduler_events = {
-	 	"hourly": [
- 		"hibiscus_connect.tasks.fetch_transactions_from_active_accounts"
-		]
+	"hourly": [
+		"hibiscus_connect.tasks.fetch_transactions_from_active_accounts",
+		"hibiscus_connect.tasks.refresh_lastschrift_cache",
+		"hibiscus_connect.tasks.refresh_ueberweisung_cache"
+	]
 }
 
 # scheduler_events = {
@@ -190,5 +192,6 @@ user_data_fields = [
 # ]
 
 fixtures = [
-	"Hibiscus Connect Transaction Category"
+	"Hibiscus Connect Transaction Category",
+	{"dt": "Custom HTML Block", "filters": [["name", "=", "SEPA Lastschrift Dashboard"]]}
 ]

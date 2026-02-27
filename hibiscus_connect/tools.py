@@ -516,6 +516,7 @@ def make_payment_entry(matching_list, settings=None):
         print(pe_doc.unallocated_amount)
         print(pe_doc.difference_amount)
         matching_list["hib_trans_doc"].customer = pe_doc.party
+        matching_list["hib_trans_doc"].add_link("Payment Entry", pe_doc.name, betrag=pe_doc.paid_amount, bemerkung="Automatisch erstellt")
         matching_list["hib_trans_doc"].save()
         matching_list["Payment Entry"] = pe_doc.name
 
@@ -538,6 +539,8 @@ def make_payment_entry(matching_list, settings=None):
         pe_doc.submit()
         matching_list["hib_trans_doc"].protokoll = pe_doc.remarks
         matching_list["hib_trans_doc"].status = "automatisch verbucht"
+        for sinv in todo:
+            matching_list["hib_trans_doc"].add_link("Sales Invoice", sinv, bemerkung="Automatisch zugeordnet")
         matching_list["hib_trans_doc"].save()
        
     return pe_doc

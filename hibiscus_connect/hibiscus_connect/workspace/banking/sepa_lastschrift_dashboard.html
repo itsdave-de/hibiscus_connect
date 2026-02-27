@@ -1,0 +1,82 @@
+<div id="sepa-dashboard-widget" class="widget-body">
+	<div class="widget-content">
+		<div id="sepa-dashboard-content" style="min-height: 100px;">
+			<div class="text-muted text-center" style="padding: 20px;">
+				<span class="frappe-control loading"></span>
+				Lade Daten...
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+(function() {
+	function loadDashboard() {
+		frappe.call({
+			method: 'hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen.get_dashboard_data',
+			callback: function(r) {
+				if (r.message) {
+					renderDashboard(r.message);
+				}
+			},
+			error: function() {
+				$('#sepa-dashboard-content').html('<div class="text-muted text-center">Fehler beim Laden der Daten</div>');
+			}
+		});
+	}
+
+	function renderDashboard(data) {
+		var hasOverdue = data.count_faellig > 0;
+		var statusClass = hasOverdue ? 'red' : 'green';
+		var statusIcon = hasOverdue ? 'alert-circle' : 'check';
+		var statusText = hasOverdue ? 'Fällige Lastschriften vorhanden!' : 'Keine fälligen Lastschriften';
+
+		var lastCheck = data.last_check ? frappe.datetime.str_to_user(data.last_check) : 'Noch nie';
+
+		var html = `
+			<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+				<div class="number-card" style="flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; background: var(--bg-color); border: 1px solid var(--border-color);">
+					<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+						<span class="indicator-pill ${statusClass}">
+							<svg class="icon icon-sm"><use href="#icon-${statusIcon}"></use></svg>
+						</span>
+						<span style="font-weight: 500;">${statusText}</span>
+					</div>
+					${hasOverdue ? `
+						<div style="display: flex; gap: 30px; margin-top: 15px;">
+							<div>
+								<div class="text-muted" style="font-size: 11px; text-transform: uppercase;">Anzahl</div>
+								<div style="font-size: 24px; font-weight: 600; color: var(--text-color);">${data.count_faellig}</div>
+							</div>
+							<div>
+								<div class="text-muted" style="font-size: 11px; text-transform: uppercase;">Summe</div>
+								<div style="font-size: 24px; font-weight: 600; color: var(--text-color);">${data.total_faellig_formatted}</div>
+							</div>
+						</div>
+					` : ''}
+					<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+						<div style="display: flex; justify-content: space-between; align-items: center;">
+							<span class="text-muted" style="font-size: 11px;">Letzter Abruf: ${lastCheck}</span>
+							<a href="/app/hibiscus-connect-sepa-lastschrift-funktionen" class="btn btn-xs btn-default">
+								Details anzeigen
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="number-card" style="flex: 1; min-width: 200px; padding: 15px; border-radius: 8px; background: var(--bg-color); border: 1px solid var(--border-color);">
+					<div class="text-muted" style="font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Offene Lastschriften gesamt</div>
+					<div style="font-size: 24px; font-weight: 600; color: var(--text-color);">${data.count_offen}</div>
+					<div style="font-size: 14px; color: var(--text-muted); margin-top: 5px;">${data.total_offen}</div>
+				</div>
+			</div>
+		`;
+
+		$('#sepa-dashboard-content').html(html);
+	}
+
+	// Initial load
+	$(document).ready(function() {
+		setTimeout(loadDashboard, 500);
+	});
+})();
+</script>

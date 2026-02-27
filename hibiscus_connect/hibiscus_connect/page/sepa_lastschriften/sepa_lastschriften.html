@@ -1,0 +1,227 @@
+<style>
+.lastschriften-container {
+	padding: 15px;
+}
+
+.frappe-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-lg);
+	box-shadow: var(--card-shadow);
+}
+
+.frappe-card .card-body {
+	padding: 20px;
+}
+
+.frappe-card .card-footer {
+	padding: 15px 20px;
+	border-top: 1px solid var(--border-color);
+}
+
+/* Statistik-Karten */
+.stat-card {
+	padding: 15px 20px;
+	border-radius: var(--border-radius);
+	border: 1px solid var(--border-color);
+	background: var(--bg-color);
+}
+
+.stat-card .stat-label {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--text-muted);
+	margin-bottom: 5px;
+}
+
+.stat-card .stat-value {
+	font-size: 14px;
+	color: var(--text-color);
+}
+
+.stat-card .stat-amount {
+	font-size: 20px;
+	font-weight: 700;
+	margin-top: 5px;
+}
+
+.stat-card-total {
+	border-left: 4px solid var(--primary);
+}
+
+.stat-card-total .stat-amount {
+	color: var(--primary);
+}
+
+.stat-card-offen {
+	border-left: 4px solid var(--yellow-500);
+}
+
+.stat-card-offen .stat-amount {
+	color: var(--yellow-600);
+}
+
+.stat-card-ausgefuehrt {
+	border-left: 4px solid var(--green-500);
+}
+
+.stat-card-ausgefuehrt .stat-amount {
+	color: var(--green-600);
+}
+
+/* Filter Buttons */
+.btn-group .filter-btn {
+	min-width: 100px;
+}
+
+.filter-btn.btn-default {
+	background: var(--bg-color);
+	border-color: var(--border-color);
+}
+
+/* Tabelle */
+.frappe-card table {
+	margin-bottom: 0;
+}
+
+.frappe-card table th {
+	background: var(--bg-light-gray);
+	border-top: none;
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--text-muted);
+	padding: 12px 15px;
+	white-space: nowrap;
+}
+
+.frappe-card table td {
+	padding: 12px 15px;
+	vertical-align: middle;
+	border-color: var(--border-color);
+	font-size: 13px;
+}
+
+.frappe-card table tbody tr:hover {
+	background: var(--bg-light-gray);
+}
+
+.row-ausgefuehrt {
+	background-color: rgba(var(--green-500-rgb), 0.05);
+}
+
+.row-offen td {
+	border-left: 3px solid transparent;
+}
+
+.row-offen td:first-child {
+	border-left: 3px solid var(--yellow-500);
+}
+
+/* Badges */
+.badge {
+	font-weight: 500;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+}
+
+.badge-primary {
+	background-color: var(--primary);
+	color: white;
+}
+
+.badge-success {
+	background-color: var(--green-500);
+	color: white;
+}
+
+.badge-warning {
+	background-color: var(--yellow-500);
+	color: var(--text-color);
+}
+
+.badge-danger {
+	background-color: var(--red-500);
+	color: white;
+}
+
+.badge-secondary {
+	background-color: var(--gray-500);
+	color: white;
+}
+
+.badge-info {
+	background-color: var(--blue-500);
+	color: white;
+}
+
+.badge-dark {
+	background-color: var(--gray-700);
+	color: white;
+}
+
+.badge-light {
+	background-color: var(--bg-light-gray);
+	color: var(--text-muted);
+	border: 1px solid var(--border-color);
+}
+
+/* IBAN Code */
+.iban-code {
+	font-size: 11px;
+	background: var(--bg-light-gray);
+	padding: 3px 6px;
+	border-radius: 3px;
+	font-family: var(--font-family-monospace);
+	word-break: break-all;
+}
+
+/* Betrag */
+.betrag {
+	font-size: 14px;
+	color: var(--text-color);
+}
+
+/* Spinner */
+.spinner-border {
+	width: 3rem;
+	height: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+	.stat-card {
+		margin-bottom: 15px;
+	}
+
+	.frappe-card table {
+		font-size: 12px;
+	}
+
+	.frappe-card table th,
+	.frappe-card table td {
+		padding: 8px 10px;
+	}
+
+	.iban-code {
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 768px) {
+	.btn-group {
+		flex-wrap: wrap;
+	}
+
+	.btn-group .filter-btn {
+		margin-bottom: 5px;
+	}
+}
+</style>
+
+<div class="lastschriften-container">
+	<!-- Content wird via JavaScript geladen -->
+</div>

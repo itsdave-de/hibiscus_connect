@@ -10,6 +10,31 @@
   "hibiscus_master_password",
   "ignore_cert",
   "test_connection",
+  "lastschrift_cache_section",
+  "lastschrift_cache_enabled",
+  "lastschrift_last_check",
+  "column_break_cache",
+  "lastschrift_count_faellig",
+  "lastschrift_total_faellig",
+  "lastschrift_cache_data",
+  "refresh_lastschrift_cache_btn",
+  "ueberweisung_cache_section",
+  "ueberweisung_cache_enabled",
+  "ueberweisung_last_check",
+  "column_break_ueberweisung_cache",
+  "ueberweisung_count_faellig",
+  "ueberweisung_total_faellig",
+  "ueberweisung_cache_data",
+  "refresh_ueberweisung_cache_btn",
+  "mysql_section",
+  "mysql_enabled",
+  "mysql_host",
+  "mysql_port",
+  "column_break_mysql",
+  "mysql_database",
+  "mysql_user",
+  "mysql_password",
+  "test_mysql_connection",
   "creditor_section",
   "konto",
   "konto_id",
@@ -77,6 +102,156 @@
    "fieldname": "debit_charge_active",
    "fieldtype": "Check",
    "label": "SEPA Lastschrift Export aktiv"
+  },
+  {
+   "fieldname": "lastschrift_cache_section",
+   "fieldtype": "Section Break",
+   "label": "Lastschrift-Dashboard (Cache)"
+  },
+  {
+   "default": "1",
+   "description": "Aktiviert den st\u00fcndlichen Abruf der Lastschrift-Daten f\u00fcr das Dashboard",
+   "fieldname": "lastschrift_cache_enabled",
+   "fieldtype": "Check",
+   "label": "Dashboard-Cache aktivieren"
+  },
+  {
+   "fieldname": "lastschrift_last_check",
+   "fieldtype": "Datetime",
+   "label": "Letzter Abruf",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cache",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lastschrift_count_faellig",
+   "fieldtype": "Int",
+   "label": "Anzahl f\u00e4llige Lastschriften",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lastschrift_total_faellig",
+   "fieldtype": "Currency",
+   "label": "Summe f\u00e4llige Lastschriften",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lastschrift_cache_data",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Cache-Daten (JSON)"
+  },
+  {
+   "fieldname": "refresh_lastschrift_cache_btn",
+   "fieldtype": "Button",
+   "label": "Cache jetzt aktualisieren",
+   "options": "refresh_lastschrift_cache"
+  },
+  {
+   "fieldname": "ueberweisung_cache_section",
+   "fieldtype": "Section Break",
+   "label": "Überweisungs-Dashboard (Cache)"
+  },
+  {
+   "default": "1",
+   "description": "Aktiviert den stündlichen Abruf der Überweisungs-Daten für das Dashboard",
+   "fieldname": "ueberweisung_cache_enabled",
+   "fieldtype": "Check",
+   "label": "Überweisungs-Cache aktivieren"
+  },
+  {
+   "fieldname": "ueberweisung_last_check",
+   "fieldtype": "Datetime",
+   "label": "Letzter Abruf",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ueberweisung_cache",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ueberweisung_count_faellig",
+   "fieldtype": "Int",
+   "label": "Anzahl fällige Überweisungen",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ueberweisung_total_faellig",
+   "fieldtype": "Currency",
+   "label": "Summe fällige Überweisungen",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ueberweisung_cache_data",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Cache-Daten Überweisungen (JSON)"
+  },
+  {
+   "fieldname": "refresh_ueberweisung_cache_btn",
+   "fieldtype": "Button",
+   "label": "Überweisungs-Cache aktualisieren",
+   "options": "refresh_ueberweisung_cache"
+  },
+  {
+   "fieldname": "mysql_section",
+   "fieldtype": "Section Break",
+   "label": "MySQL Direktzugriff (für Lastschrift-Updates)"
+  },
+  {
+   "default": "0",
+   "description": "Aktiviert den direkten MySQL-Zugriff auf die Hibiscus-Datenbank, um Lastschriften bearbeiten zu k\u00f6nnen.",
+   "fieldname": "mysql_enabled",
+   "fieldtype": "Check",
+   "label": "MySQL-Zugriff aktivieren"
+  },
+  {
+   "default": "10.251.2.6",
+   "depends_on": "mysql_enabled",
+   "fieldname": "mysql_host",
+   "fieldtype": "Data",
+   "label": "MySQL Host"
+  },
+  {
+   "default": "3306",
+   "depends_on": "mysql_enabled",
+   "fieldname": "mysql_port",
+   "fieldtype": "Data",
+   "label": "MySQL Port"
+  },
+  {
+   "depends_on": "mysql_enabled",
+   "fieldname": "column_break_mysql",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "hibiscus",
+   "depends_on": "mysql_enabled",
+   "fieldname": "mysql_database",
+   "fieldtype": "Data",
+   "label": "Datenbank"
+  },
+  {
+   "default": "frappe_hibiscus",
+   "depends_on": "mysql_enabled",
+   "fieldname": "mysql_user",
+   "fieldtype": "Data",
+   "label": "MySQL Benutzer"
+  },
+  {
+   "depends_on": "mysql_enabled",
+   "fieldname": "mysql_password",
+   "fieldtype": "Password",
+   "label": "MySQL Passwort"
+  },
+  {
+   "depends_on": "mysql_enabled",
+   "fieldname": "test_mysql_connection",
+   "fieldtype": "Button",
+   "label": "MySQL Verbindung testen",
+   "options": "test_mysql_connection"
   },
   {
    "fieldname": "creditor_section",
@@ -150,7 +325,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-07-11 14:28:05.027395",
+ "modified": "2026-01-10 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Settings",

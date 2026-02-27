@@ -18,6 +18,52 @@ class HibiscusConnectSettings(Document):
 		frappe.msgprint(str(konto_list))
 
 	@frappe.whitelist()
+	def test_mysql_connection(self):
+		"""Testet die MySQL-Verbindung zur Hibiscus-Datenbank"""
+		if not self.mysql_enabled:
+			frappe.msgprint("MySQL-Zugriff ist nicht aktiviert.", indicator="orange")
+			return
+
+		try:
+			import pymysql
+			conn = pymysql.connect(
+				host=self.mysql_host,
+				port=int(self.mysql_port or 3306),
+				user=self.mysql_user,
+				password=self.get_password("mysql_password"),
+				database=self.mysql_database
+			)
+			cursor = conn.cursor()
+			cursor.execute("SELECT COUNT(*) FROM sepalastschrift")
+			count = cursor.fetchone()[0]
+			cursor.execute("SELECT COUNT(*) FROM sepalastschrift WHERE ausgefuehrt = 0")
+			count_open = cursor.fetchone()[0]
+			conn.close()
+			frappe.msgprint(
+				f"Verbindung erfolgreich!<br><br>"
+				f"<b>Lastschriften gesamt:</b> {count}<br>"
+				f"<b>Offene Lastschriften:</b> {count_open}",
+				indicator="green",
+				title="MySQL Verbindung"
+			)
+		except Exception as e:
+			frappe.msgprint(f"Verbindungsfehler: {str(e)}", indicator="red", title="MySQL Fehler")
+
+	@frappe.whitelist()
+	def refresh_lastschrift_cache(self):
+		"""Aktualisiert den Lastschrift-Cache manuell"""
+		from hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen import refresh_lastschrift_cache as do_refresh
+		try:
+			do_refresh()
+			frappe.msgprint(
+				"Lastschrift-Cache wurde aktualisiert.",
+				indicator="green",
+				title="Cache aktualisiert"
+			)
+		except Exception as e:
+			frappe.msgprint(f"Fehler beim Aktualisieren: {str(e)}", indicator="red", title="Fehler")
+
+	@frappe.whitelist()
 	def get_export(self):
 		current_date = datetime.today().strftime('%d.%m.%Y')
 		columns = ["Bankleitzahl oder BIC des Kontoinhabers", 
