@@ -43,7 +43,7 @@
  ],
  "fields": [
   {
-   "description": "Type of transaction (e.g. Lastschrift, \u00dcberweisung)",
+   "description": "Type of transaction (e.g. Lastschrift, Überweisung)",
    "fieldname": "transaction_type",
    "fieldtype": "Data",
    "label": "Transaction Type",
@@ -97,7 +97,7 @@
    "read_only": 1
   },
   {
-   "description": "German bank transaction type code (Gesch\u00e4ftsvorfallcode)",
+   "description": "German bank transaction type code (Geschäftsvorfallcode)",
    "fieldname": "gvcode",
    "fieldtype": "Data",
    "label": "GV Code",
@@ -149,7 +149,7 @@
    "description": "Date when the transaction becomes effective (Valuta)",
    "fieldname": "value_date",
    "fieldtype": "Date",
-   "in_list_view": 1,
+   "in_list_view": 0,
    "in_standard_filter": 1,
    "label": "Value Date",
    "read_only": 1
@@ -240,7 +240,7 @@
    "description": "The bank account this transaction belongs to",
    "fieldname": "bank_account",
    "fieldtype": "Link",
-   "in_list_view": 1,
+   "in_list_view": 0,
    "in_standard_filter": 1,
    "label": "Bank Account",
    "options": "Hibiscus Connect Bank Account",
@@ -251,7 +251,8 @@
    "fieldname": "customer",
    "fieldtype": "Dynamic Link",
    "label": "Customer",
-   "options": "customer_type"
+   "options": "customer_type",
+   "in_list_view": 1
   },
   {
    "description": "Set to 'Customer' when ERPNext is installed",
@@ -311,8 +312,45 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "sort_field": "transaction_date",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {
+   "title": "new",
+   "color": "Blue"
+  },
+  {
+   "title": "auto booked",
+   "color": "Green"
+  },
+  {
+   "title": "partially auto booked",
+   "color": "Cyan"
+  },
+  {
+   "title": "manually booked",
+   "color": "Green"
+  },
+  {
+   "title": "partially booked",
+   "color": "Orange"
+  },
+  {
+   "title": "legacy booked",
+   "color": "Gray"
+  },
+  {
+   "title": "cancelled",
+   "color": "Red"
+  },
+  {
+   "title": "other income",
+   "color": "Purple"
+  },
+  {
+   "title": "possible duplicate",
+   "color": "Yellow"
+  }
+ ],
  "track_changes": 1
 }
