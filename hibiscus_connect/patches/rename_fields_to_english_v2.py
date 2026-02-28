@@ -20,6 +20,7 @@ def execute():
     _rename_sepa_mandat_columns()
     _update_transaction_status_values()
     _update_transaction_link_status_values()
+    _fix_transaction_link_parentfield()
 
     frappe.db.commit()
     print("Field rename v2 migration completed successfully.")
@@ -198,3 +199,16 @@ def _update_transaction_link_status_values():
         affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
         if affected:
             print(f"  Updated {affected} rows: '{old_val}' -> '{new_val}'")
+
+def _fix_transaction_link_parentfield():
+    """Update parentfield from verknuepfungen to transaction_links."""
+    print("
+Fixing Transaction Link parentfield...")
+    frappe.db.sql(
+        "UPDATE \`tabHibiscus Connect Transaction Link\` SET parentfield='transaction_links' WHERE parentfield='verknuepfungen'"
+    )
+    affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
+    if affected:
+        print(f"  Updated {affected} rows: parentfield verknuepfungen -> transaction_links")
+    else:
+        print("  Already up to date")
