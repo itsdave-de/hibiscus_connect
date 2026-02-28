@@ -5,11 +5,24 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "connection_section",
   "server",
   "port",
+  "column_break_connection",
   "hibiscus_master_password",
   "ignore_cert",
   "test_connection",
+  "creditor_section",
+  "creditor_iban",
+  "creditor_account_id",
+  "column_break_creditor",
+  "creditor_id",
+  "auto_booking_section",
+  "auto_submit_payment_entry",
+  "sepa_direct_debit_section",
+  "sepa_direct_debit_enabled",
+  "sepa_payment_terms_doctype",
+  "sepa_payment_terms",
   "lastschrift_cache_section",
   "lastschrift_cache_enabled",
   "lastschrift_last_check",
@@ -35,90 +48,148 @@
   "mysql_user",
   "mysql_password",
   "test_mysql_connection",
-  "creditor_section",
-  "konto",
-  "konto_id",
-  "column_break_9",
-  "creditorid",
-  "einstellungen_f\u00fcr_automatisches_verbuchen_section",
-  "submit_pe",
-  "einstellungen_sepa_lastschrift",
-  "debit_charge_active",
-  "sepa_zahlungsweise",
-  "export_data_section",
-  "export_konto",
-  "from_date",
-  "column_break_1fddl",
-  "bic",
-  "to_date",
-  "export"
+  "export_section",
+  "export_account",
+  "export_from_date",
+  "column_break_export",
+  "export_bic",
+  "export_to_date",
+  "export_button",
+  "bank_code_section",
+  "bundesbank_download_url",
+  "column_break_bank_code",
+  "last_blz_import",
+  "blz_record_count",
+  "import_blz_button"
  ],
  "fields": [
   {
+   "fieldname": "connection_section",
+   "fieldtype": "Section Break",
+   "label": "Connection",
+   "description": "Hibiscus server connection settings"
+  },
+  {
    "fieldname": "server",
    "fieldtype": "Data",
-   "label": "Server"
+   "label": "Server",
+   "description": "Hostname or IP address of the Hibiscus server (e.g. hbci.example.com)"
   },
   {
    "fieldname": "port",
    "fieldtype": "Data",
-   "label": "Port"
+   "label": "Port",
+   "description": "Port number for XML-RPC connection (typically 443 for SSL or 8080 for direct)"
   },
   {
-   "fieldname": "test_connection",
-   "fieldtype": "Button",
-   "label": "Test Connection",
-   "options": "test_connection"
+   "fieldname": "column_break_connection",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hibiscus_master_password",
+   "fieldtype": "Password",
+   "label": "Master Password",
+   "description": "Master password for authenticating with the Hibiscus server XML-RPC API"
   },
   {
    "default": "0",
    "fieldname": "ignore_cert",
    "fieldtype": "Check",
-   "label": "Ignore Invalid Certificate"
+   "label": "Ignore Invalid Certificate",
+   "description": "Enable to skip SSL certificate validation (useful for self-signed certificates)"
   },
   {
-   "fieldname": "hibiscus_master_password",
-   "fieldtype": "Password",
-   "label": "Hibiscus Master Password"
+   "fieldname": "test_connection",
+   "fieldtype": "Button",
+   "label": "Test Connection",
+   "options": "test_connection",
+   "description": "Tests the connection to Hibiscus and displays available bank accounts"
+  },
+  {
+   "fieldname": "creditor_section",
+   "fieldtype": "Section Break",
+   "label": "SEPA Creditor",
+   "description": "Your organization's banking details for SEPA direct debits"
+  },
+  {
+   "fieldname": "creditor_iban",
+   "fieldtype": "Data",
+   "label": "Creditor IBAN",
+   "description": "IBAN of your organization's bank account used for SEPA direct debits"
+  },
+  {
+   "fieldname": "creditor_account_id",
+   "fieldtype": "Data",
+   "label": "Creditor Account ID",
+   "description": "Internal Hibiscus account ID for the SEPA creditor account"
+  },
+  {
+   "fieldname": "column_break_creditor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creditor_id",
+   "fieldtype": "Data",
+   "label": "Creditor Identifier",
+   "description": "Your SEPA Creditor Identifier (Gl\u00e4ubiger-ID) issued by Deutsche Bundesbank"
+  },
+  {
+   "fieldname": "auto_booking_section",
+   "fieldtype": "Section Break",
+   "label": "Auto Booking",
+   "description": "Settings for automatic booking of incoming payments to ERPNext invoices"
   },
   {
    "default": "0",
-   "fieldname": "submit_pe",
+   "fieldname": "auto_submit_payment_entry",
    "fieldtype": "Check",
-   "label": "Payment Entries buchen"
+   "label": "Auto Submit Payment Entries",
+   "description": "When enabled, automatically submits Payment Entries after matching transactions to invoices (requires ERPNext)"
   },
   {
-   "fieldname": "einstellungen_f\u00fcr_automatisches_verbuchen_section",
+   "fieldname": "sepa_direct_debit_section",
    "fieldtype": "Section Break",
-   "label": "Einstellungen f\u00fcr automatisches Verbuchen"
-  },
-  {
-   "fieldname": "einstellungen_sepa_lastschrift",
-   "fieldtype": "Section Break",
-   "label": "Einstellungen f\u00fcr SEPA-Lastschrift"
+   "label": "SEPA Direct Debit",
+   "description": "Settings for SEPA direct debit (Lastschrift) processing"
   },
   {
    "default": "0",
-   "fieldname": "debit_charge_active",
+   "fieldname": "sepa_direct_debit_enabled",
    "fieldtype": "Check",
-   "label": "SEPA Lastschrift Export aktiv"
+   "label": "Enable SEPA Direct Debit",
+   "description": "When enabled, automatically creates SEPA direct debit orders in Hibiscus when Sales Invoices with SEPA payment terms are submitted (requires ERPNext)"
+  },
+  {
+   "fieldname": "sepa_payment_terms_doctype",
+   "fieldtype": "Link",
+   "label": "Payment Terms DocType",
+   "options": "DocType",
+   "hidden": 1,
+   "description": "Set to 'Payment Terms Template' when ERPNext is installed"
+  },
+  {
+   "fieldname": "sepa_payment_terms",
+   "fieldtype": "Dynamic Link",
+   "label": "SEPA Payment Terms",
+   "options": "sepa_payment_terms_doctype",
+   "description": "Payment Terms Template that triggers SEPA direct debit (e.g. 'SEPA Einzug 7 Tage') - requires ERPNext"
   },
   {
    "fieldname": "lastschrift_cache_section",
    "fieldtype": "Section Break",
-   "label": "Lastschrift-Dashboard (Cache)"
+   "label": "Direct Debit Dashboard (Cache)"
   },
   {
    "default": "1",
-   "description": "Aktiviert den st\u00fcndlichen Abruf der Lastschrift-Daten f\u00fcr das Dashboard",
+   "description": "Enables hourly fetching of direct debit data for the dashboard",
    "fieldname": "lastschrift_cache_enabled",
    "fieldtype": "Check",
-   "label": "Dashboard-Cache aktivieren"
+   "label": "Enable Dashboard Cache"
   },
   {
    "fieldname": "lastschrift_last_check",
    "fieldtype": "Datetime",
-   "label": "Letzter Abruf",
+   "label": "Last Check",
    "read_only": 1
   },
   {
@@ -128,43 +199,43 @@
   {
    "fieldname": "lastschrift_count_faellig",
    "fieldtype": "Int",
-   "label": "Anzahl f\u00e4llige Lastschriften",
+   "label": "Due Direct Debits Count",
    "read_only": 1
   },
   {
    "fieldname": "lastschrift_total_faellig",
    "fieldtype": "Currency",
-   "label": "Summe f\u00e4llige Lastschriften",
+   "label": "Due Direct Debits Total",
    "read_only": 1
   },
   {
    "fieldname": "lastschrift_cache_data",
    "fieldtype": "Long Text",
    "hidden": 1,
-   "label": "Cache-Daten (JSON)"
+   "label": "Cache Data (JSON)"
   },
   {
    "fieldname": "refresh_lastschrift_cache_btn",
    "fieldtype": "Button",
-   "label": "Cache jetzt aktualisieren",
+   "label": "Refresh Cache Now",
    "options": "refresh_lastschrift_cache"
   },
   {
    "fieldname": "ueberweisung_cache_section",
    "fieldtype": "Section Break",
-   "label": "Überweisungs-Dashboard (Cache)"
+   "label": "Transfer Dashboard (Cache)"
   },
   {
    "default": "1",
-   "description": "Aktiviert den stündlichen Abruf der Überweisungs-Daten für das Dashboard",
+   "description": "Enables hourly fetching of transfer data for the dashboard",
    "fieldname": "ueberweisung_cache_enabled",
    "fieldtype": "Check",
-   "label": "Überweisungs-Cache aktivieren"
+   "label": "Enable Transfer Cache"
   },
   {
    "fieldname": "ueberweisung_last_check",
    "fieldtype": "Datetime",
-   "label": "Letzter Abruf",
+   "label": "Last Check",
    "read_only": 1
   },
   {
@@ -174,38 +245,38 @@
   {
    "fieldname": "ueberweisung_count_faellig",
    "fieldtype": "Int",
-   "label": "Anzahl fällige Überweisungen",
+   "label": "Due Transfers Count",
    "read_only": 1
   },
   {
    "fieldname": "ueberweisung_total_faellig",
    "fieldtype": "Currency",
-   "label": "Summe fällige Überweisungen",
+   "label": "Due Transfers Total",
    "read_only": 1
   },
   {
    "fieldname": "ueberweisung_cache_data",
    "fieldtype": "Long Text",
    "hidden": 1,
-   "label": "Cache-Daten Überweisungen (JSON)"
+   "label": "Cache Data Transfers (JSON)"
   },
   {
    "fieldname": "refresh_ueberweisung_cache_btn",
    "fieldtype": "Button",
-   "label": "Überweisungs-Cache aktualisieren",
+   "label": "Refresh Transfer Cache",
    "options": "refresh_ueberweisung_cache"
   },
   {
    "fieldname": "mysql_section",
    "fieldtype": "Section Break",
-   "label": "MySQL Direktzugriff (für Lastschrift-Updates)"
+   "label": "MySQL Direct Access (for Direct Debit Updates)"
   },
   {
    "default": "0",
-   "description": "Aktiviert den direkten MySQL-Zugriff auf die Hibiscus-Datenbank, um Lastschriften bearbeiten zu k\u00f6nnen.",
+   "description": "Enables direct MySQL access to the Hibiscus database for editing direct debits",
    "fieldname": "mysql_enabled",
    "fieldtype": "Check",
-   "label": "MySQL-Zugriff aktivieren"
+   "label": "Enable MySQL Access"
   },
   {
    "default": "10.251.2.6",
@@ -231,101 +302,115 @@
    "depends_on": "mysql_enabled",
    "fieldname": "mysql_database",
    "fieldtype": "Data",
-   "label": "Datenbank"
+   "label": "Database"
   },
   {
    "default": "frappe_hibiscus",
    "depends_on": "mysql_enabled",
    "fieldname": "mysql_user",
    "fieldtype": "Data",
-   "label": "MySQL Benutzer"
+   "label": "MySQL User"
   },
   {
    "depends_on": "mysql_enabled",
    "fieldname": "mysql_password",
    "fieldtype": "Password",
-   "label": "MySQL Passwort"
+   "label": "MySQL Password"
   },
   {
    "depends_on": "mysql_enabled",
    "fieldname": "test_mysql_connection",
    "fieldtype": "Button",
-   "label": "MySQL Verbindung testen",
+   "label": "Test MySQL Connection",
    "options": "test_mysql_connection"
   },
   {
-   "fieldname": "creditor_section",
+   "fieldname": "export_section",
    "fieldtype": "Section Break",
-   "label": "Creditor"
+   "label": "Transaction Export",
+   "description": "Export bank transactions to CSV file for external accounting software"
   },
   {
-   "fieldname": "konto",
-   "fieldtype": "Data",
-   "label": "Konto"
+   "fieldname": "export_account",
+   "fieldtype": "Link",
+   "label": "Export Account",
+   "options": "Hibiscus Connect Bank Account",
+   "description": "Bank account to export transactions from"
   },
   {
-   "fieldname": "konto_id",
-   "fieldtype": "Data",
-   "label": "Konto ID"
+   "fieldname": "export_from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "description": "Start date for transaction export"
   },
   {
-   "fieldname": "column_break_9",
+   "fieldname": "column_break_export",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "creditorid",
-   "fieldtype": "Data",
-   "label": "Gl\u00e4ubiger Identifikation"
-  },
-  {
-   "fieldname": "sepa_zahlungsweise",
-   "fieldtype": "Link",
-   "label": "Sepa Zahlungsweise",
-   "options": "Payment Terms Template"
-  },
-  {
-   "fieldname": "export_data_section",
-   "fieldtype": "Section Break",
-   "label": "Export Data"
-  },
-  {
-   "fieldname": "from_date",
-   "fieldtype": "Date",
-   "label": "from Date"
-  },
-  {
-   "fieldname": "column_break_1fddl",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "to_date",
-   "fieldtype": "Date",
-   "label": "to Date"
-  },
-  {
-   "fieldname": "export",
-   "fieldtype": "Button",
-   "label": "Export",
-   "options": "get_export"
-  },
-  {
-   "fieldname": "export_konto",
-   "fieldtype": "Link",
-   "label": "Export Konto",
-   "options": "Hibiscus Connect Bank Account"
-  },
-  {
-   "fetch_from": "export_konto.bic",
-   "fieldname": "bic",
+   "fetch_from": "export_account.bic",
+   "fieldname": "export_bic",
    "fieldtype": "Data",
    "label": "BIC",
-   "read_only": 1
+   "read_only": 1,
+   "description": "BIC of the selected export account (auto-filled)"
+  },
+  {
+   "fieldname": "export_to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "description": "End date for transaction export"
+  },
+  {
+   "fieldname": "export_button",
+   "fieldtype": "Button",
+   "label": "Export",
+   "options": "get_export",
+   "description": "Generates a CSV file with transactions from the selected date range and account"
+  },
+  {
+   "fieldname": "bank_code_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Code Import",
+   "description": "Import German bank codes (Bankleitzahlen) from Bundesbank"
+  },
+  {
+   "fieldname": "bundesbank_download_url",
+   "fieldtype": "Data",
+   "label": "Bundesbank Download URL",
+   "default": "https://www.bundesbank.de/de/aufgaben/unbarer-zahlungsverkehr/serviceangebot/bankleitzahlen/download-bankleitzahlen-602592",
+   "description": "URL to the Bundesbank BLZ download page"
+  },
+  {
+   "fieldname": "column_break_bank_code",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_blz_import",
+   "fieldtype": "Datetime",
+   "label": "Last BLZ Import",
+   "read_only": 1,
+   "description": "Timestamp of the last successful BLZ import"
+  },
+  {
+   "fieldname": "blz_record_count",
+   "fieldtype": "Int",
+   "label": "BLZ Record Count",
+   "read_only": 1,
+   "description": "Total number of bank codes in the database"
+  },
+  {
+   "fieldname": "import_blz_button",
+   "fieldtype": "Button",
+   "label": "Import Bank Codes",
+   "options": "import_bank_codes",
+   "description": "Download and import the latest BLZ data from Bundesbank"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-10 11:00:00.000000",
+ "modified": "2026-02-28 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Settings",

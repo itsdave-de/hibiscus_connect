@@ -13,15 +13,80 @@ from datetime import datetime
 class HibiscusConnectSettings(Document):
 	@frappe.whitelist()
 	def test_connection(self):
-		hibiscus = Hibiscus(self.server, self.port, self.get_password("hibiscus_master_password"), self.ignore_cert)
-		konto_list = hibiscus.get_accounts()
-		frappe.msgprint(str(konto_list))
+		try:
+			hibiscus = Hibiscus(self.server, self.port, self.get_password("hibiscus_master_password"), self.ignore_cert)
+			account_list = hibiscus.get_accounts()
+
+			if not account_list:
+				frappe.msgprint(
+					msg="Connection successful, but no bank accounts found.",
+					title="Hibiscus Connection",
+					indicator="orange"
+				)
+				return
+
+			# Return data for client-side dialog
+			accounts_data = []
+			for acc in account_list:
+				saldo = acc.get("saldo", "0") or "0"
+				try:
+					saldo_float = float(str(saldo).replace(",", "."))
+				except (ValueError, TypeError):
+					saldo_float = 0.0
+
+				accounts_data.append({
+					"id": acc.get("id", "-"),
+					"name": acc.get("bezeichnung", "-"),
+					"iban": acc.get("iban", "-"),
+					"bic": acc.get("bic", "-"),
+					"balance": saldo_float,
+					"currency": acc.get("waehrung", "EUR")
+				})
+
+			return {
+				"success": True,
+				"server": self.server,
+				"accounts": accounts_data
+			}
+
+		except Exception as e:
+			error_type = type(e).__name__
+			error_msg = str(e)
+
+			# Provide user-friendly error messages
+			if "401" in error_msg or "Unauthorized" in error_msg:
+				friendly_error = "Authentication failed. Please check the master password."
+				error_code = "AUTH_FAILED"
+			elif error_type == "gaierror" or "Name or service not known" in error_msg:
+				friendly_error = "Server not found. Please check the server hostname."
+				error_code = "SERVER_NOT_FOUND"
+			elif error_type == "ConnectionRefusedError" or "Connection refused" in error_msg:
+				friendly_error = "Connection refused. Please check if the server is running and the port is correct."
+				error_code = "CONNECTION_REFUSED"
+			elif "SSL" in error_msg or "CERTIFICATE" in error_msg.upper():
+				friendly_error = "SSL certificate error. Try enabling 'Ignore Invalid Certificate' option."
+				error_code = "SSL_ERROR"
+			elif "timed out" in error_msg.lower() or error_type == "TimeoutError":
+				friendly_error = "Connection timed out. The server may be unreachable or the port may be wrong."
+				error_code = "TIMEOUT"
+			else:
+				friendly_error = error_msg
+				error_code = "UNKNOWN"
+
+			return {
+				"success": False,
+				"server": self.server,
+				"port": self.port,
+				"error": friendly_error,
+				"error_code": error_code,
+				"error_details": error_msg
+			}
 
 	@frappe.whitelist()
 	def test_mysql_connection(self):
-		"""Testet die MySQL-Verbindung zur Hibiscus-Datenbank"""
+		"""Test the MySQL connection to the Hibiscus database."""
 		if not self.mysql_enabled:
-			frappe.msgprint("MySQL-Zugriff ist nicht aktiviert.", indicator="orange")
+			frappe.msgprint("MySQL access is not enabled.", indicator="orange")
 			return
 
 		try:
@@ -40,37 +105,37 @@ class HibiscusConnectSettings(Document):
 			count_open = cursor.fetchone()[0]
 			conn.close()
 			frappe.msgprint(
-				f"Verbindung erfolgreich!<br><br>"
-				f"<b>Lastschriften gesamt:</b> {count}<br>"
-				f"<b>Offene Lastschriften:</b> {count_open}",
+				f"Connection successful!<br><br>"
+				f"<b>Total direct debits:</b> {count}<br>"
+				f"<b>Open direct debits:</b> {count_open}",
 				indicator="green",
-				title="MySQL Verbindung"
+				title="MySQL Connection"
 			)
 		except Exception as e:
-			frappe.msgprint(f"Verbindungsfehler: {str(e)}", indicator="red", title="MySQL Fehler")
+			frappe.msgprint(f"Connection error: {str(e)}", indicator="red", title="MySQL Error")
 
 	@frappe.whitelist()
 	def refresh_lastschrift_cache(self):
-		"""Aktualisiert den Lastschrift-Cache manuell"""
+		"""Manually refresh the direct debit cache."""
 		from hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen import refresh_lastschrift_cache as do_refresh
 		try:
 			do_refresh()
 			frappe.msgprint(
-				"Lastschrift-Cache wurde aktualisiert.",
+				"Direct debit cache has been refreshed.",
 				indicator="green",
-				title="Cache aktualisiert"
+				title="Cache Refreshed"
 			)
 		except Exception as e:
-			frappe.msgprint(f"Fehler beim Aktualisieren: {str(e)}", indicator="red", title="Fehler")
+			frappe.msgprint(f"Error refreshing cache: {str(e)}", indicator="red", title="Error")
 
 	@frappe.whitelist()
 	def get_export(self):
 		current_date = datetime.today().strftime('%d.%m.%Y')
-		columns = ["Bankleitzahl oder BIC des Kontoinhabers", 
-	     			"Kontonummer oder IBAN des Kontoinhabers", 
-					"Auszugsnummer", 
+		columns = ["Bankleitzahl oder BIC des Kontoinhabers",
+	     			"Kontonummer oder IBAN des Kontoinhabers",
+					"Auszugsnummer",
 					"Auszugsdatum",
-					"Valuta", 
+					"Valuta",
 					"Buchungsdatum",
 					"Umsatz",
 					"Auftraggebername 1",
@@ -79,16 +144,16 @@ class HibiscusConnectSettings(Document):
 					"Kontonummer oder IBAN des Auftraggebers",
 					"Verwendungszweck 1",
 					 ]
-		
-		hib_data = frappe.get_all("Hibiscus Connect Transaction", filters = {"datum":["between", [self.from_date, self.to_date]],
-								       										"konto": self.export_konto})
+
+		hib_data = frappe.get_all("Hibiscus Connect Transaction", filters = {"transaction_date":["between", [self.export_from_date, self.export_to_date]],
+								       										"bank_account": self.export_account})
 		print(len(hib_data))
 		exp_data = []
 		for x in hib_data:
 			el = frappe.get_doc("Hibiscus Connect Transaction",x.name)
 
-			print(el.empfaenger_name)
-			if el.empfaenger_name == "BFS finance GmbH":
+			print(el.counterparty_name)
+			if el.counterparty_name == "BFS finance GmbH":
 				print(True)
 				trans = el.name
 				bfs_trans = self.get_bfs_transaction(trans)
@@ -96,19 +161,19 @@ class HibiscusConnectSettings(Document):
 					exp_data.append(el)
 			else:
 				print(False)
-				data =[self.bic,
-	   				self.export_konto , 
+				data =[self.export_bic,
+	   				self.export_account,
 					"",
 					current_date,
-					el.valuta,
-					el.datum,
-					el.betrag,
-					el.empfaenger_name,
+					el.value_date,
+					el.transaction_date,
+					el.amount,
+					el.counterparty_name,
 					"",
-					el.empfaenger_blz,
-					el.empfaenger_konto,
-					el.zweck,
-					
+					el.counterparty_bic,
+					el.counterparty_iban,
+					el.purpose,
+
 				]
 				exp_data.append(data)
 		print(exp_data)
@@ -118,12 +183,8 @@ class HibiscusConnectSettings(Document):
 		df_sorted['Valuta'] = df_sorted.apply(lambda x: x["Valuta"].strftime('%d.%m.%Y'), axis = 1)
 		df_sorted['Buchungsdatum'] = df_sorted.apply(lambda x: x['Buchungsdatum'].strftime('%d.%m.%Y'), axis = 1)
 		print(df.dtypes)
-		print(df_sorted)	
-	
-		# # DataFrame als CSV-Datei speichern
-		# csv_data = df_sorted.to_csv(index=False, sep=';',decimal=',',header=False, line_terminator='\r\n', quoting=3)
-		# print(csv_data)
-		
+		print(df_sorted)
+
 		# CSV-Datei mit den gewünschten Merkmalen manuell erstellen
 		csv_data = ""
 		for _, row in df_sorted.iterrows():
@@ -139,14 +200,14 @@ class HibiscusConnectSettings(Document):
 		# CSV-Datei speichern
 		with open('data.csv', 'w', encoding='cp1252') as file:
 			file.write(csv_data)
-		name = "Bankdaten von "+ self.from_date +" bis " + self.to_date+".csv"
-		# #Datei in erpnext hochladen
+		name = "Bankdaten von "+ str(self.export_from_date) +" bis " + str(self.export_to_date)+".csv"
+		# Datei in erpnext hochladen
 		file_data = frappe.get_doc({
 			'doctype': 'File',
 			'file_name': 'data.csv',
 			'content': csv_data,
-			'is_private': 0,  
-			'attached_to_doctype':"Hibiscus Connect Settings" ,  
+			'is_private': 0,
+			'attached_to_doctype':"Hibiscus Connect Settings" ,
 			'attached_to_name': "Hibiscus Connect Settings",
 		})
 		file_data.insert()
@@ -154,9 +215,8 @@ class HibiscusConnectSettings(Document):
 
 
 	def get_bfs_transaction(self,trans):
-		bank_trans = frappe.get_doc("Hibiscus Connect Transaction", trans) 
-		date = bank_trans.datum
-		#date = date_dt.strftime('%d.%m.%Y')
+		bank_trans = frappe.get_doc("Hibiscus Connect Transaction", trans)
+		date = bank_trans.transaction_date
 
 
 		filters = {"hibiscus_connect_transaction":trans}
@@ -167,8 +227,8 @@ class HibiscusConnectSettings(Document):
 		for el in trans_list:
 			trans_doc = frappe.get_doc("BFS List Item",el)
 			supplier_name = frappe.get_doc("Supplier", trans_doc.supplier).supplier_name
-			transaction =[self.bic,
-		 			self.export_konto, 
+			transaction =[self.export_bic,
+		 			self.export_account,
 					"",
 					datetime.today().strftime('%d.%m.%Y'),
 					date,
@@ -179,12 +239,18 @@ class HibiscusConnectSettings(Document):
 					"",
 					"",
 					supplier_name + ", Rechnung: " + trans_doc.belegnummer,
-					
+
 				]
-				
+
 			transactions.append(transaction)
 		print(transactions)
 		return(transactions)
 
-				
-
+	@frappe.whitelist()
+	def import_bank_codes(self):
+		"""
+		Import bank codes from Bundesbank.
+		Triggered by button click in Settings.
+		"""
+		from hibiscus_connect.bank_code_import import import_bank_codes_now
+		return import_bank_codes_now()

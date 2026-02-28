@@ -3,13 +3,13 @@
 
 frappe.ui.form.on('Hibiscus Connect Transaction', {
 	setup(frm) {
-		frm.set_query("link_doctype", "verknuepfungen", function() {
+		frm.set_query("link_doctype", "transaction_links", function() {
 			return { filters: { istable: 0, issingle: 0 } };
 		});
 	},
 
 	refresh(frm) {
-		// Bestehende Buttons
+		// Book payment button
 		frm.add_custom_button('Zahlung verbuchen', function(){
 			frappe.call({
 				method: 'hibiscus_connect.tools.match_hibiscus_transaction',
@@ -24,17 +24,18 @@ frappe.ui.form.on('Hibiscus Connect Transaction', {
 					});
 					frappe.set_route('List', 'Hibiscus Connect Transaction', {
 						'status': 'neu',
-						'betrag': ['>', 0]});
+						'amount': ['>', 0]});
 				}
 			})
 		});
+		// Create bank account button
 		frm.add_custom_button('Bankkonto erstellen', function(){
 			frappe.call({
 				method: 'hibiscus_connect.tools.create_bank_account_for_customer',
 				args: {
 					customer: frm.doc.customer,
-					bic: frm.doc.empfaenger_blz,
-					iban: frm.doc.empfaenger_konto
+					bic: frm.doc.counterparty_bic,
+					iban: frm.doc.counterparty_iban
 				},
 				callback:function(r){
 					frappe.msgprint({
@@ -46,7 +47,7 @@ frappe.ui.form.on('Hibiscus Connect Transaction', {
 			})
 		});
 
-		// Stornierte/ersetzte Verknüpfungen visuell abgrenzen
+		// Visually distinguish cancelled/replaced links
 		style_inactive_links(frm);
 	}
 });
@@ -55,18 +56,18 @@ frappe.ui.form.on('Hibiscus Connect Transaction Link', {
 	link_status(frm) {
 		style_inactive_links(frm);
 	},
-	verknuepfungen_remove(frm) {
+	transaction_links_remove(frm) {
 		style_inactive_links(frm);
 	}
 });
 
 function style_inactive_links(frm) {
 	setTimeout(function() {
-		(frm.doc.verknuepfungen || []).forEach(function(row, idx) {
-			let $row = frm.fields_dict.verknuepfungen.grid.grid_rows[idx];
+		(frm.doc.transaction_links || []).forEach(function(row, idx) {
+			let $row = frm.fields_dict.transaction_links.grid.grid_rows[idx];
 			if (!$row) return;
 			let $el = $row.row;
-			if (row.link_status === 'storniert' || row.link_status === 'ersetzt') {
+			if (row.link_status === 'cancelled' || row.link_status === 'replaced') {
 				$el.css({ 'opacity': '0.5', 'text-decoration': 'line-through' });
 			} else {
 				$el.css({ 'opacity': '1', 'text-decoration': 'none' });

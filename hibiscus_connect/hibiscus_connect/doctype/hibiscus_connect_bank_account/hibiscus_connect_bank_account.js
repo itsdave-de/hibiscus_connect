@@ -6,7 +6,7 @@ frappe.ui.form.on('Hibiscus Connect Bank Account', {
 		frm.add_custom_button('Umsätze abrufen', function(){
 			let ua = new frappe.ui.Dialog({
 				title: 'Zeitraum auswählen:',
-				fields: [ 
+				fields: [
 					{
 						label: 'von',
 						fieldname: 'von',
@@ -20,8 +20,8 @@ frappe.ui.form.on('Hibiscus Connect Bank Account', {
 				],
 				primary_action_label: 'Submit',
 				primary_action(values) {
-					frappe.call({ 
-						method: 'hibiscus_connect.tools.get_transactions_for_account', 
+					frappe.call({
+						method: 'hibiscus_connect.tools.get_transactions_for_account',
 						args: {
 							account: frm.doc.name,
 							von: values.von,
@@ -37,5 +37,3 @@ frappe.ui.form.on('Hibiscus Connect Bank Account', {
 		});
 	}
 });
-
-

@@ -9,10 +9,11 @@
   "link_title",
   "column_break_1",
   "link_status",
-  "betrag",
-  "verknuepft_am",
+  "amount",
+  "linked_at",
   "column_break_2",
-  "bemerkung"
+  "note",
+  "active"
  ],
  "fields": [
   {
@@ -27,7 +28,7 @@
    "fieldname": "link_name",
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
-   "label": "Dokument",
+   "label": "Document",
    "options": "link_doctype",
    "reqd": 1
   },
@@ -35,31 +36,31 @@
    "fieldname": "link_title",
    "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Titel"
+   "label": "Title"
   },
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
   },
   {
-   "default": "aktiv",
+   "default": "active",
    "fieldname": "link_status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "aktiv\nstorniert\nersetzt",
+   "options": "active\ncancelled\nreplaced",
    "reqd": 1
   },
   {
-   "fieldname": "betrag",
+   "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Betrag"
+   "label": "Amount"
   },
   {
-   "fieldname": "verknuepft_am",
+   "fieldname": "linked_at",
    "fieldtype": "Datetime",
-   "label": "Verknüpft am",
+   "label": "Linked At",
    "read_only": 1
   },
   {
@@ -67,15 +68,21 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "bemerkung",
-   "fieldtype": "Small Text",
-   "label": "Bemerkung"
+   "fieldname": "note",
+   "fieldtype": "Data",
+   "label": "Note"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
   }
  ],
  "index_web_pages_for_search": 0,
  "istable": 1,
  "links": [],
- "modified": "2026-02-27 10:00:00.000000",
+ "modified": "2026-02-28 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Transaction Link",
