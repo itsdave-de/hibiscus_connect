@@ -1,3 +1,4 @@
 hibiscus_connect.patches.remove_erpnext_dependencies
 hibiscus_connect.patches.update_transaction_fields_from_hibiscus
 hibiscus_connect.patches.rename_fields_to_english
+hibiscus_connect.patches.rename_fields_to_english_v2

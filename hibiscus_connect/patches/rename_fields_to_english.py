@@ -1,29 +1,23 @@
 """
-Rename German field names to English across all Hibiscus Connect DocTypes.
+Rename German field names to English across regular-table DocTypes.
 
-This patch uses RENAME COLUMN (instant DDL in MariaDB >= 10.3, no table rebuild)
-and UPDATE with WHERE clause (only affects rows with old values).
+This patch handles Transaction, Transaction Link, and Bank Account tables.
+Settings (Single DocType) and SEPA Mandat are handled in rename_fields_to_english_v2.
 
 The patch is idempotent — it checks if old columns exist before renaming.
 """
 
 import frappe
-from frappe.utils import cint
 
 
 def execute():
-    """Run the field rename migration."""
+    """Run the field rename migration for regular tables."""
     _rename_transaction_columns()
     _rename_transaction_link_columns()
     _rename_bank_account_columns()
-    _rename_settings_columns()
-    _rename_sepa_mandat_columns()
-
-    _update_transaction_status_values()
-    _update_transaction_link_status_values()
 
     frappe.db.commit()
-    print("Field rename migration completed successfully.")
+    print("Field rename v1 migration completed successfully.")
 
 
 def _column_exists(table, column):
@@ -38,7 +32,6 @@ def _column_exists(table, column):
 def _rename_column(table, old_name, new_name):
     """Rename a column if the old name exists and new name doesn't."""
     if _column_exists(table, old_name) and not _column_exists(table, new_name):
-        # Get column definition to preserve type
         col_info = frappe.db.sql(
             "SHOW COLUMNS FROM `{table}` LIKE %s".format(table=table),
             old_name,
@@ -103,7 +96,6 @@ def _rename_transaction_link_columns():
     table = "tabHibiscus Connect Transaction Link"
     print(f"\nRenaming columns in {table}...")
 
-    # Check if table exists (it might not on fresh installs)
     tables = frappe.db.sql("SHOW TABLES LIKE %s", table)
     if not tables:
         print(f"  Table {table} does not exist, skipping.")
@@ -143,102 +135,3 @@ def _rename_bank_account_columns():
 
     for old_name, new_name in renames:
         _rename_column(table, old_name, new_name)
-
-
-def _rename_settings_columns():
-    """Rename columns in tabHibiscus Connect Settings."""
-    table = "tabHibiscus Connect Settings"
-    print(f"\nRenaming columns in {table}...")
-
-    renames = [
-        ("submit_pe", "auto_submit_payment_entry"),
-        ("debit_charge_active", "sepa_direct_debit_enabled"),
-        ("konto", "creditor_iban"),
-        ("konto_id", "creditor_account_id"),
-        ("creditorid", "creditor_id"),
-    ]
-
-    for old_name, new_name in renames:
-        _rename_column(table, old_name, new_name)
-
-
-def _rename_sepa_mandat_columns():
-    """Rename columns in tabSEPA Lastschrift Mandat."""
-    table = "tabSEPA Lastschrift Mandat"
-    print(f"\nRenaming columns in {table}...")
-
-    renames = [
-        ("frst", "first_debit_done"),
-        ("final", "is_final_debit"),
-        ("mandateid", "mandate_reference"),
-        ("gegenkonto_name", "debtor_name"),
-        ("kontonummer", "debtor_iban"),
-        ("blz", "debtor_bic"),
-        ("creditorid", "creditor_id"),
-        ("sigdate", "signature_date"),
-        ("sepatype", "sepa_type"),
-        ("konto", "creditor_iban"),
-        ("konto_id", "creditor_account_id"),
-    ]
-
-    for old_name, new_name in renames:
-        _rename_column(table, old_name, new_name)
-
-
-def _update_transaction_status_values():
-    """Update German status values to English in Hibiscus Connect Transaction."""
-    table = "tabHibiscus Connect Transaction"
-    print(f"\nUpdating status values in {table}...")
-
-    status_mapping = {
-        "neu": "new",
-        "automatisch verbucht": "auto booked",
-        "teilweise automatisch verbucht": "partially auto booked",
-        "manuell verbucht": "manually booked",
-        "teilweise verbucht": "partially booked",
-        "legacy verbucht": "legacy booked",
-        "abgebrochen": "cancelled",
-        "andere Einnahme": "other income",
-        "mögliche Doppelzahlung": "possible duplicate",
-    }
-
-    for old_val, new_val in status_mapping.items():
-        result = frappe.db.sql(
-            "UPDATE `{table}` SET `status` = %s WHERE `status` = %s".format(table=table),
-            (new_val, old_val)
-        )
-        affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
-        if affected:
-            print(f"  Updated {affected} rows: '{old_val}' -> '{new_val}'")
-
-
-def _update_transaction_link_status_values():
-    """Update German link_status values to English in Hibiscus Connect Transaction Link."""
-    table = "tabHibiscus Connect Transaction Link"
-    print(f"\nUpdating link_status values in {table}...")
-
-    # Check if table exists
-    tables = frappe.db.sql("SHOW TABLES LIKE %s", table)
-    if not tables:
-        print(f"  Table {table} does not exist, skipping.")
-        return
-
-    # Check if link_status column exists
-    if not _column_exists(table, "link_status"):
-        print(f"  Column link_status not found, skipping.")
-        return
-
-    status_mapping = {
-        "aktiv": "active",
-        "storniert": "cancelled",
-        "ersetzt": "replaced",
-    }
-
-    for old_val, new_val in status_mapping.items():
-        frappe.db.sql(
-            "UPDATE `{table}` SET `link_status` = %s WHERE `link_status` = %s".format(table=table),
-            (new_val, old_val)
-        )
-        affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
-        if affected:
-            print(f"  Updated {affected} rows: '{old_val}' -> '{new_val}'")
