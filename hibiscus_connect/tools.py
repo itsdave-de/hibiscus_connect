@@ -289,6 +289,12 @@ def create_hibiscus_connect_transaction(hib_trans, account):
     # Remove None values to avoid overwriting defaults
     transaction_data = {k: v for k, v in transaction_data.items() if v is not None}
 
+    # Auto-detect chargebacks (GV code 108 = LS RÜCKBELASTUNG)
+    amount = transaction_data.get("amount", 0)
+    gvcode = transaction_data.get("gvcode", "")
+    if str(gvcode) == "108" and amount < 0:
+        transaction_data["status"] = "chargeback"
+
     # Create and save the document
     doc = frappe.get_doc(transaction_data)
     doc.insert(ignore_permissions=True)
@@ -969,3 +975,178 @@ def sync_account_names_from_bank():
             print(f"Updated {iban}: {bezeichnung}")
     frappe.db.commit()
     print(f"Updated {updated} accounts")
+
+
+# ── Chargeback Processing ──────────────────────────────────────────────
+
+def _extract_sinv_refs_from_purpose(purpose):
+    """Extract SINV references from a transaction's purpose field."""
+    if not purpose:
+        return []
+    return re.findall(r'SINV-\d+', purpose.replace(' ', ''))
+
+
+def _find_original_payment_entry(sinv_refs, counterparty_name=None):
+    """Find the submitted Payment Entry that paid the given Sales Invoices.
+
+    Strategy:
+    1. Find submitted PEs that reference the SINVs
+    2. If multiple, prefer the one linked to a Hibiscus transaction
+    3. Return the PE doc or None
+    """
+    if not sinv_refs:
+        return None
+
+    # Find submitted PEs referencing any of these SINVs
+    pe_names = frappe.db.sql("""
+        SELECT DISTINCT parent
+        FROM `tabPayment Entry Reference`
+        WHERE reference_doctype = 'Sales Invoice'
+          AND reference_name IN %(sinvs)s
+          AND docstatus = 1
+    """, {"sinvs": sinv_refs}, as_dict=True)
+
+    if not pe_names:
+        return None
+
+    candidates = [row["parent"] for row in pe_names]
+
+    if len(candidates) == 1:
+        return frappe.get_doc("Payment Entry", candidates[0])
+
+    # Multiple PEs — prefer one with hibiscus_connect_transaction set
+    for pe_name in candidates:
+        hct_link = frappe.db.get_value("Payment Entry", pe_name, "hibiscus_connect_transaction")
+        if hct_link:
+            return frappe.get_doc("Payment Entry", pe_name)
+
+    # Fallback: return the first one
+    return frappe.get_doc("Payment Entry", candidates[0])
+
+
+@frappe.whitelist()
+def get_chargeback_details(hib_trans):
+    """Return details for the chargeback banner and confirmation dialog.
+
+    Returns dict with: sinv_refs, pe_name, pe_amount, fee_amount, customer, sinv_details
+    """
+    doc = frappe.get_doc("Hibiscus Connect Transaction", hib_trans)
+
+    sinv_refs = _extract_sinv_refs_from_purpose(doc.purpose)
+    result = {
+        "sinv_refs": sinv_refs,
+        "pe_name": None,
+        "pe_amount": 0,
+        "fee_amount": 0,
+        "customer": None,
+        "sinv_details": [],
+        "can_process": False,
+        "message": "",
+    }
+
+    if not sinv_refs:
+        result["message"] = "Keine Rechnungsnummer im Verwendungszweck gefunden."
+        return result
+
+    pe = _find_original_payment_entry(sinv_refs)
+    if not pe:
+        result["message"] = "Kein zugehöriger Payment Entry gefunden."
+        return result
+
+    if pe.docstatus != 1:
+        result["message"] = f"Payment Entry {pe.name} ist nicht gebucht (Status: {pe.docstatus})."
+        return result
+
+    result["pe_name"] = pe.name
+    result["pe_amount"] = pe.paid_amount
+    result["customer"] = pe.party
+    result["fee_amount"] = round(abs(doc.amount) - pe.paid_amount, 2)
+
+    # Get SINV details for display
+    for ref in pe.references:
+        if ref.reference_doctype == "Sales Invoice":
+            sinv_status = frappe.db.get_value("Sales Invoice", ref.reference_name, "status")
+            result["sinv_details"].append({
+                "sinv": ref.reference_name,
+                "amount": ref.allocated_amount,
+                "status": sinv_status,
+            })
+
+    result["can_process"] = True
+    return result
+
+
+@frappe.whitelist()
+def process_chargeback(hib_trans):
+    """Process a chargeback transaction by cancelling the original Payment Entry.
+
+    1. Find the original PE via SINV references in purpose
+    2. Cancel the PE (auto-reverses GL entries, reopens SINVs)
+    3. Create Transaction Links on the chargeback transaction
+    4. Update the original collection transaction
+    5. Set chargeback status to 'chargeback processed'
+    """
+    check_erpnext_required("Rücklastschrift verarbeiten")
+
+    doc = frappe.get_doc("Hibiscus Connect Transaction", hib_trans)
+
+    if doc.status == "chargeback processed":
+        frappe.throw("Diese Rücklastschrift wurde bereits verarbeitet.")
+
+    sinv_refs = _extract_sinv_refs_from_purpose(doc.purpose)
+    if not sinv_refs:
+        frappe.throw("Keine Rechnungsnummer im Verwendungszweck gefunden.")
+
+    pe = _find_original_payment_entry(sinv_refs)
+    if not pe:
+        frappe.throw("Kein zugehöriger Payment Entry gefunden.")
+
+    if pe.docstatus != 1:
+        frappe.throw(f"Payment Entry {pe.name} ist nicht gebucht und kann nicht storniert werden.")
+
+    # Collect info before cancellation
+    pe_name = pe.name
+    pe_amount = pe.paid_amount
+    affected_sinvs = [ref.reference_name for ref in pe.references if ref.reference_doctype == "Sales Invoice"]
+
+    # Cancel the Payment Entry — this automatically:
+    # - Reverses all GL entries
+    # - Recalculates outstanding_amount on referenced SINVs
+    # - Sets SINVs back to "Unpaid"
+    pe.cancel()
+
+    # Create Transaction Links on the chargeback transaction
+    doc.add_link("Payment Entry", pe_name,
+                 amount=pe_amount,
+                 note=f"Rücklastschrift — PE {pe_name} storniert")
+    for sinv in affected_sinvs:
+        doc.add_link("Sales Invoice", sinv,
+                     note="Rücklastschrift — Rechnung wieder offen")
+
+    # Update the original collection transaction (if linked via hibiscus_connect_transaction)
+    original_hct = frappe.db.get_value("Payment Entry", pe_name, "hibiscus_connect_transaction")
+    if original_hct:
+        original_doc = frappe.get_doc("Hibiscus Connect Transaction", original_hct)
+        original_doc.cancel_link("Payment Entry", pe_name,
+                                 note=f"PE storniert wegen Rücklastschrift {doc.name}")
+        original_doc.save(ignore_permissions=True)
+
+    # Set final status
+    doc.status = "chargeback processed"
+    doc.save(ignore_permissions=True)
+    frappe.db.commit()
+
+    # Calculate fee for user info
+    fee = round(abs(doc.amount) - pe_amount, 2)
+    fee_msg = ""
+    if fee > 0:
+        fee_msg = f"<br>Bankgebühr: {fee} EUR (manuell verbuchen)"
+    elif fee < 0:
+        fee_msg = f"<br>Differenz: {fee} EUR (Rücklastschrift-Betrag weicht ab)"
+
+    return (
+        f"Rücklastschrift verarbeitet:<br>"
+        f"PE {pe_name} storniert.<br>"
+        f"Rechnungen wieder offen: {', '.join(affected_sinvs)}"
+        f"{fee_msg}"
+    )

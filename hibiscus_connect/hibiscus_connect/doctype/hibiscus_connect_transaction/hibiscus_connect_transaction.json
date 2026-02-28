@@ -46,18 +46,19 @@
    "description": "Type of transaction (e.g. Lastschrift, Überweisung)",
    "fieldname": "transaction_type",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "Transaction Type",
    "read_only": 1
   },
   {
+   "columns": 2,
    "description": "Transaction amount (positive for credits, negative for debits)",
    "fieldname": "amount",
    "fieldtype": "Float",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Amount",
-   "read_only": 1,
-   "columns": 2
+   "read_only": 1
   },
   {
    "description": "Customer reference number from the transaction",
@@ -67,13 +68,13 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "description": "Date when the transaction was booked",
    "fieldname": "transaction_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Transaction Date",
-   "read_only": 1,
-   "columns": 2
+   "read_only": 1
   },
   {
    "description": "BIC/SWIFT code of the counterparty's bank",
@@ -90,14 +91,14 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "description": "Name of the counterparty (sender or recipient)",
    "fieldname": "counterparty_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Counterparty Name",
-   "read_only": 1,
-   "columns": 2
+   "read_only": 1
   },
   {
    "description": "German bank transaction type code (Geschäftsvorfallcode)",
@@ -152,19 +153,18 @@
    "description": "Date when the transaction becomes effective (Valuta)",
    "fieldname": "value_date",
    "fieldtype": "Date",
-   "in_list_view": 0,
    "in_standard_filter": 1,
    "label": "Value Date",
    "read_only": 1
   },
   {
+   "columns": 3,
    "description": "Payment purpose/reference text (Verwendungszweck)",
    "fieldname": "purpose",
    "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Purpose",
-   "read_only": 1,
-   "columns": 3
+   "read_only": 1
   },
   {
    "description": "Unprocessed purpose text from the bank",
@@ -200,13 +200,13 @@
    "fieldtype": "Column Break"
   },
   {
+   "columns": 2,
    "description": "Processing status of the transaction",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "new\nauto booked\npartially auto booked\nmanually booked\npartially booked\nlegacy booked\ncancelled\nother income\npossible duplicate",
-   "columns": 2
+   "options": "new\nauto booked\npartially auto booked\nmanually booked\npartially booked\nlegacy booked\ncancelled\nother income\npossible duplicate\nchargeback\nchargeback processed"
   },
   {
    "fieldname": "transaction_section",
@@ -245,20 +245,19 @@
    "description": "The bank account this transaction belongs to",
    "fieldname": "bank_account",
    "fieldtype": "Link",
-   "in_list_view": 0,
    "in_standard_filter": 1,
    "label": "Bank Account",
    "options": "Hibiscus Connect Bank Account",
    "read_only": 1
   },
   {
+   "columns": 2,
    "description": "Linked customer for this transaction (ERPNext)",
    "fieldname": "customer",
    "fieldtype": "Dynamic Link",
-   "label": "Customer",
-   "options": "customer_type",
    "in_list_view": 1,
-   "columns": 2
+   "label": "Customer",
+   "options": "customer_type"
   },
   {
    "description": "Set to 'Customer' when ERPNext is installed",
@@ -279,8 +278,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-28 12:00:00.000000",
- "modified_by": "Administrator",
+ "modified": "2026-02-28 08:59:36.781609",
+ "modified_by": "D.Malinowski@itsdave.de",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Transaction",
  "owner": "Administrator",
@@ -318,47 +317,54 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "transaction_date",
  "sort_order": "DESC",
  "states": [
   {
-   "title": "new",
-   "color": "Blue"
+   "color": "Blue",
+   "title": "new"
   },
   {
-   "title": "auto booked",
-   "color": "Green"
+   "color": "Green",
+   "title": "auto booked"
   },
   {
-   "title": "partially auto booked",
-   "color": "Cyan"
+   "color": "Cyan",
+   "title": "partially auto booked"
   },
   {
-   "title": "manually booked",
-   "color": "Green"
+   "color": "Green",
+   "title": "manually booked"
   },
   {
-   "title": "partially booked",
-   "color": "Orange"
+   "color": "Orange",
+   "title": "partially booked"
   },
   {
-   "title": "legacy booked",
-   "color": "Gray"
+   "color": "Gray",
+   "title": "legacy booked"
   },
   {
-   "title": "cancelled",
-   "color": "Red"
+   "color": "Red",
+   "title": "cancelled"
   },
   {
-   "title": "other income",
-   "color": "Purple"
+   "color": "Purple",
+   "title": "other income"
   },
   {
-   "title": "possible duplicate",
-   "color": "Yellow"
+   "color": "Yellow",
+   "title": "possible duplicate"
+  },
+  {
+   "color": "Red",
+   "title": "chargeback"
+  },
+  {
+   "color": "Orange",
+   "title": "chargeback processed"
   }
  ],
- "track_changes": 1,
- "title_field": "",
- "show_title_field_in_link": 0
+ "track_changes": 1
 }
