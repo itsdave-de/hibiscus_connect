@@ -56,7 +56,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Amount",
-   "read_only": 1
+   "read_only": 1,
+   "columns": 2
   },
   {
    "description": "Customer reference number from the transaction",
@@ -71,7 +72,8 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Transaction Date",
-   "read_only": 1
+   "read_only": 1,
+   "columns": 2
   },
   {
    "description": "BIC/SWIFT code of the counterparty's bank",
@@ -94,7 +96,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Counterparty Name",
-   "read_only": 1
+   "read_only": 1,
+   "columns": 2
   },
   {
    "description": "German bank transaction type code (Geschäftsvorfallcode)",
@@ -160,7 +163,8 @@
    "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Purpose",
-   "read_only": 1
+   "read_only": 1,
+   "columns": 3
   },
   {
    "description": "Unprocessed purpose text from the bank",
@@ -201,7 +205,8 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "new\nauto booked\npartially auto booked\nmanually booked\npartially booked\nlegacy booked\ncancelled\nother income\npossible duplicate"
+   "options": "new\nauto booked\npartially auto booked\nmanually booked\npartially booked\nlegacy booked\ncancelled\nother income\npossible duplicate",
+   "columns": 2
   },
   {
    "fieldname": "transaction_section",
@@ -252,7 +257,8 @@
    "fieldtype": "Dynamic Link",
    "label": "Customer",
    "options": "customer_type",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "columns": 2
   },
   {
    "description": "Set to 'Customer' when ERPNext is installed",
@@ -352,5 +358,7 @@
    "color": "Yellow"
   }
  ],
- "track_changes": 1
+ "track_changes": 1,
+ "title_field": "counterparty_name",
+ "show_title_field_in_link": 1
 }
