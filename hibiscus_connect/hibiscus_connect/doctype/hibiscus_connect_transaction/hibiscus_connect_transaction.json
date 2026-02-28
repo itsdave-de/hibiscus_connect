@@ -359,6 +359,6 @@
   }
  ],
  "track_changes": 1,
- "title_field": "counterparty_name",
- "show_title_field_in_link": 1
+ "title_field": "",
+ "show_title_field_in_link": 0
 }
