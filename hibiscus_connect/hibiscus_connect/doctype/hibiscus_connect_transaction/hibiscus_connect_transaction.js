@@ -23,7 +23,7 @@ frappe.ui.form.on('Hibiscus Connect Transaction', {
 						message: __(r.message)
 					});
 					frappe.set_route('List', 'Hibiscus Connect Transaction', {
-						'status': 'neu',
+						'status': 'new',
 						'amount': ['>', 0]});
 				}
 			})
