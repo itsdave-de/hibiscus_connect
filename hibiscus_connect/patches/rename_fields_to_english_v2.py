@@ -21,6 +21,7 @@ def execute():
     _update_transaction_status_values()
     _update_transaction_link_status_values()
     _fix_transaction_link_parentfield()
+    _set_customer_type_on_existing()
 
     frappe.db.commit()
     print("Field rename v2 migration completed successfully.")
@@ -210,5 +211,17 @@ Fixing Transaction Link parentfield...")
     affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
     if affected:
         print(f"  Updated {affected} rows: parentfield verknuepfungen -> transaction_links")
+    else:
+        print("  Already up to date")
+
+def _set_customer_type_on_existing():
+    """Set customer_type='Customer' on all existing transactions where it is empty."""
+    print("\nSetting customer_type on existing transactions...")
+    frappe.db.sql(
+        "UPDATE `tabHibiscus Connect Transaction` SET customer_type='Customer' WHERE customer_type IS NULL OR customer_type = ''"
+    )
+    affected = frappe.db.sql("SELECT ROW_COUNT() as cnt")[0][0]
+    if affected:
+        print(f"  Set customer_type='Customer' on {affected} transactions")
     else:
         print("  Already up to date")
