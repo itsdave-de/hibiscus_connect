@@ -14,9 +14,9 @@ frm.call('get_creditor_from_settings', {})
         if (r.message) {
             let creditor_doc = r.message;
             console.log(creditor_doc)
-			frm.set_value("konto", creditor_doc[0]),
-			frm.set_value("konto_id", creditor_doc[1])
-			frm.set_value("creditorid",creditor_doc[2])
+			frm.set_value("creditor_iban", creditor_doc[0]),
+			frm.set_value("creditor_account_id", creditor_doc[1])
+			frm.set_value("creditor_id",creditor_doc[2])
         }
     })
 },
