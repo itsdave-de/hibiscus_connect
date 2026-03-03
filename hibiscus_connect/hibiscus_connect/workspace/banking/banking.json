@@ -9,7 +9,7 @@
    "label": "Unverbuchte Zahlungseing\u00e4nge"
   }
  ],
- "content": "[{\"id\":\"qxdKjVW-Xg\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Banking</span>\",\"col\":12}},{\"id\":\"mh6W07Zo5h\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction\",\"col\":3}},{\"id\":\"lCe_iJsenN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"SEPA Lastschriften\",\"col\":3}},{\"id\":\"Rzz0_TY91P\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"SEPA Lastschrift Dashboard\",\"col\":12}},{\"id\":\"CdFFzH78No\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"uGASuuLnKq\",\"type\":\"chart\",\"data\":{\"chart_name\":\"offene Ausgangsrechnungen\",\"col\":6}},{\"id\":\"s4KRaBcgQ0\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Unverbuchte Zahlungseing\u00e4nge\",\"col\":6}},{\"id\":\"WXKqXRBCES\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"prjuFs46Uw\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Bank Account\",\"col\":3}},{\"id\":\"VeExVRN1S-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Transaction Category\",\"col\":3}},{\"id\":\"SH9QNBXMm-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hibiscus Connect Settings\",\"col\":3}},{\"id\":\"ZEERIcAhwM\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+ "content": "[{\"id\": \"qxdKjVW-Xg\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\">Banking</span>\", \"col\": 12}}, {\"id\": \"mh6W07Zo5h\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Transaction\", \"col\": 3}}, {\"id\": \"lCe_iJsenN\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SEPA Lastschriften\", \"col\": 3}}, {\"id\": \"SePaMandat01\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SEPA Lastschrift Mandat\", \"col\": 3}}, {\"id\": \"Rzz0_TY91P\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"SEPA Lastschrift Dashboard\", \"col\": 12}}, {\"id\": \"CdFFzH78No\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"uGASuuLnKq\", \"type\": \"chart\", \"data\": {\"chart_name\": \"offene Ausgangsrechnungen\", \"col\": 6}}, {\"id\": \"s4KRaBcgQ0\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Unverbuchte Zahlungseing\\u00e4nge\", \"col\": 6}}, {\"id\": \"WXKqXRBCES\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"prjuFs46Uw\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Bank Account\", \"col\": 3}}, {\"id\": \"VeExVRN1S-\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Transaction Category\", \"col\": 3}}, {\"id\": \"SH9QNBXMm-\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Settings\", \"col\": 3}}, {\"id\": \"ZEERIcAhwM\", \"type\": \"spacer\", \"data\": {\"col\": 12}}]",
  "creation": "2024-07-24 14:16:16.989475",
  "custom_blocks": [
   {
@@ -27,8 +27,8 @@
  "is_hidden": 0,
  "label": "Banking",
  "links": [],
- "modified": "2026-02-24 17:50:21.888315",
- "modified_by": "D.Malinowski@itsdave.de",
+ "modified": "2026-03-03 10:58:16.672186",
+ "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Banking",
  "number_cards": [],
@@ -75,6 +75,14 @@
    "doc_view": "List",
    "label": "Hibiscus Connect Settings",
    "link_to": "Hibiscus Connect Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "SEPA Lastschrift Mandat",
+   "link_to": "SEPA Lastschrift Mandat",
+   "stats_filter": "[]",
    "type": "DocType"
   }
  ],
