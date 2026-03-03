@@ -8,17 +8,17 @@ class SEPALastschriftMandat(Document):
 	@frappe.whitelist()
 	def get_creditor_from_settings(self):
 		settings = frappe.get_single("Hibiscus Connect Settings")
-		konto = settings.konto
-		kontoid = settings.konto_id
-		creditorid = settings.creditorid
+		konto = settings.creditor_iban
+		kontoid = settings.creditor_account_id
+		creditorid = settings.creditor_id
 		return [konto,kontoid,creditorid]
 		
 	#@frappe.whitelist()
 	def on_update(self):
-		if not self.mandateid and self.customer:
+		if not self.mandate_reference and self.customer:
 			nr = self.get_mandat_nr()
 			mandateid = "SEPAM-"+ self.customer + "-"+ nr
-			self.mandateid = mandateid
+			self.mandate_reference = mandateid
 			self.save()
 
 	def get_mandat_nr(self):
