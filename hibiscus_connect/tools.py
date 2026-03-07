@@ -303,11 +303,21 @@ def create_hibiscus_connect_transaction(hib_trans, account):
 
 
 def _parse_amount(value):
-    """Parse amount value from Hibiscus API."""
+    """Parse amount value from Hibiscus API.
+
+    Hibiscus returns amounts in German locale format (comma as decimal separator,
+    dot as thousands separator), e.g. "1.234,56" or "-415,00".
+    Saldo values use dot as decimal separator, e.g. "131597.57".
+    This function handles both formats.
+    """
     if value is None:
         return 0.0
     try:
-        return float(str(value))
+        s = str(value).strip()
+        if "," in s:
+            # German format: remove thousands dots, replace decimal comma with dot
+            s = s.replace(".", "").replace(",", ".")
+        return float(s)
     except (ValueError, TypeError):
         return 0.0
 
@@ -1150,3 +1160,68 @@ def process_chargeback(hib_trans):
         f"Rechnungen wieder offen: {', '.join(affected_sinvs)}"
         f"{fee_msg}"
     )
+
+
+
+@frappe.whitelist()
+def get_banking_dashboard_data():
+    """Return dashboard data for chargebacks and unbooked payments."""
+    # Chargebacks (status = chargeback, awaiting processing)
+    chargeback = frappe.db.sql("""
+        SELECT COUNT(*) as cnt, COALESCE(SUM(ABS(amount)), 0) as total
+        FROM `tabHibiscus Connect Transaction`
+        WHERE status = 'chargeback'
+    """, as_dict=True)[0]
+
+    # Unbooked payments (status = new)
+    unbooked = frappe.db.sql("""
+        SELECT COUNT(*) as cnt, COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END), 0) as total_positive,
+               COALESCE(SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END), 0) as total_negative,
+               SUM(CASE WHEN amount > 0 THEN 1 ELSE 0 END) as cnt_positive,
+               SUM(CASE WHEN amount < 0 THEN 1 ELSE 0 END) as cnt_negative
+        FROM `tabHibiscus Connect Transaction`
+        WHERE status = 'new'
+    """, as_dict=True)[0]
+
+    return {
+        "chargeback_count": chargeback.cnt or 0,
+        "chargeback_total": frappe.utils.fmt_money(chargeback.total, currency="EUR"),
+        "unbooked_count": unbooked.cnt or 0,
+        "unbooked_count_positive": unbooked.cnt_positive or 0,
+        "unbooked_total_positive": frappe.utils.fmt_money(unbooked.total_positive, currency="EUR"),
+        "unbooked_count_negative": unbooked.cnt_negative or 0,
+        "unbooked_total_negative": frappe.utils.fmt_money(unbooked.total_negative, currency="EUR"),
+    }
+
+
+@frappe.whitelist()
+def get_balance_history(account):
+    """Return balance time series for the last 12 months.
+
+    For each day with transactions, returns the closing balance (last transaction's balance).
+    """
+    from collections import OrderedDict
+
+    twelve_months_ago = frappe.utils.add_months(frappe.utils.today(), -12)
+
+    transactions = frappe.db.sql("""
+        SELECT transaction_date, balance, name
+        FROM `tabHibiscus Connect Transaction`
+        WHERE bank_account = %(account)s
+          AND transaction_date >= %(start)s
+          AND balance != 0
+        ORDER BY transaction_date ASC, name ASC
+    """, {"account": account, "start": twelve_months_ago}, as_dict=True)
+
+    if not transactions:
+        return {"labels": [], "values": []}
+
+    # Group by date, take last balance per day
+    daily_balance = OrderedDict()
+    for txn in transactions:
+        daily_balance[str(txn.transaction_date)] = txn.balance
+
+    labels = list(daily_balance.keys())
+    values = list(daily_balance.values())
+
+    return {"labels": labels, "values": values}

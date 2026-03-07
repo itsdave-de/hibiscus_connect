@@ -7,40 +7,96 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "overview_section",
+  "balance_chart",
+  "balance_fields_section",
+  "balance",
+  "balance_date",
+  "column_break_overview",
+  "available_balance",
+  "currency",
+  "account_details_section",
   "description",
-  "account_name_from_bank",
+  "account_holder",
   "iban",
   "bic",
+  "column_break_account",
+  "account_name_from_bank",
   "account_number",
   "bank_code",
-  "column_break_account",
-  "account_holder",
-  "balance_section",
-  "balance",
-  "available_balance",
-  "column_break_balance",
-  "balance_date",
   "display_section",
   "accent_color_1",
   "accent_color_2",
   "text_color",
   "sort_order",
-  "details_section",
-  "sub_account",
-  "customer_number",
-  "currency",
-  "hibiscus_id",
-  "hibiscus_comment",
   "erpnext_section",
   "erpnext_account_doctype",
   "erpnext_account",
   "auto_fetch",
+  "technical_section",
+  "customer_number",
+  "hibiscus_id",
+  "sub_account",
+  "hibiscus_comment",
   "access_permissions_section",
   "permitted_users",
   "column_break_permissions",
   "permitted_roles"
  ],
  "fields": [
+  {
+   "fieldname": "overview_section",
+   "fieldtype": "Section Break",
+   "label": "Konto\u00fcbersicht"
+  },
+  {
+   "fieldname": "balance_chart",
+   "fieldtype": "HTML",
+   "label": "Balance Chart"
+  },
+  {
+   "fieldname": "balance_fields_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Balance",
+   "read_only": 1,
+   "description": "Current account balance"
+  },
+  {
+   "fieldname": "balance_date",
+   "fieldtype": "Data",
+   "label": "Balance Date",
+   "read_only": 1,
+   "description": "Date of the last balance update"
+  },
+  {
+   "fieldname": "column_break_overview",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "available_balance",
+   "fieldtype": "Float",
+   "label": "Available Balance",
+   "read_only": 1,
+   "description": "Available balance for transactions"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Currency",
+   "read_only": 1,
+   "description": "Account currency (e.g. EUR)"
+  },
+  {
+   "fieldname": "account_details_section",
+   "fieldtype": "Section Break",
+   "label": "Kontodaten"
+  },
   {
    "fieldname": "description",
    "fieldtype": "Data",
@@ -50,13 +106,12 @@
    "description": "Custom description to help identify this account"
   },
   {
-   "fieldname": "account_name_from_bank",
+   "fieldname": "account_holder",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Account Name From Bank",
+   "label": "Account Holder",
    "read_only": 1,
-   "description": "Account type/name as provided by the bank (e.g. Kontokorrent, Darlehen, Termineinlage)"
+   "description": "Name of the account holder"
   },
   {
    "fieldname": "iban",
@@ -69,41 +124,24 @@
    "description": "International Bank Account Number"
   },
   {
-   "fieldname": "bank_code",
+   "fieldname": "bic",
    "fieldtype": "Data",
-   "label": "Bank Code",
+   "label": "BIC",
    "read_only": 1,
-   "description": "German bank code (BLZ - Bankleitzahl)"
+   "description": "Bank Identifier Code (SWIFT code)"
   },
   {
-   "fieldname": "available_balance",
-   "fieldtype": "Float",
-   "label": "Available Balance",
-   "read_only": 1,
-   "description": "Available balance for transactions"
+   "fieldname": "column_break_account",
+   "fieldtype": "Column Break"
   },
   {
-   "fieldname": "balance",
-   "fieldtype": "Float",
+   "fieldname": "account_name_from_bank",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Balance",
+   "label": "Account Name From Bank",
    "read_only": 1,
-   "description": "Current account balance"
-  },
-  {
-   "fieldname": "sub_account",
-   "fieldtype": "Data",
-   "label": "Sub Account",
-   "read_only": 1,
-   "description": "Sub-account identifier if applicable"
-  },
-  {
-   "fieldname": "customer_number",
-   "fieldtype": "Data",
-   "label": "Customer Number",
-   "read_only": 1,
-   "description": "Bank customer number"
+   "description": "Account type/name as provided by the bank (e.g. Kontokorrent, Darlehen, Termineinlage)"
   },
   {
    "fieldname": "account_number",
@@ -113,65 +151,17 @@
    "description": "Traditional bank account number"
   },
   {
-   "fieldname": "account_holder",
+   "fieldname": "bank_code",
    "fieldtype": "Data",
-   "in_standard_filter": 1,
-   "label": "Account Holder",
+   "label": "Bank Code",
    "read_only": 1,
-   "description": "Name of the account holder"
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Data",
-   "label": "Currency",
-   "read_only": 1,
-   "description": "Account currency (e.g. EUR)"
-  },
-  {
-   "fieldname": "balance_date",
-   "fieldtype": "Data",
-   "label": "Balance Date",
-   "read_only": 1,
-   "description": "Date of the last balance update"
-  },
-  {
-   "fieldname": "hibiscus_id",
-   "fieldtype": "Data",
-   "label": "Hibiscus ID",
-   "read_only": 1,
-   "description": "Internal account ID in Hibiscus server"
-  },
-  {
-   "fieldname": "bic",
-   "fieldtype": "Data",
-   "label": "BIC",
-   "read_only": 1,
-   "description": "Bank Identifier Code (SWIFT code)"
-  },
-  {
-   "fieldname": "hibiscus_comment",
-   "fieldtype": "Text",
-   "label": "Hibiscus Comment",
-   "read_only": 1,
-   "description": "Comment stored in Hibiscus for this account"
-  },
-  {
-   "fieldname": "column_break_account",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "balance_section",
-   "fieldtype": "Section Break",
-   "label": "Balance"
-  },
-  {
-   "fieldname": "column_break_balance",
-   "fieldtype": "Column Break"
+   "description": "German bank code (BLZ - Bankleitzahl)"
   },
   {
    "fieldname": "display_section",
    "fieldtype": "Section Break",
-   "label": "Display Settings"
+   "label": "Darstellung",
+   "collapsible": 1
   },
   {
    "fieldname": "accent_color_1",
@@ -203,9 +193,10 @@
    "description": "Display order in dashboard widget (lower numbers appear first)"
   },
   {
-   "fieldname": "details_section",
+   "fieldname": "erpnext_section",
    "fieldtype": "Section Break",
-   "label": "Details"
+   "label": "ERPNext Integration",
+   "collapsible": 1
   },
   {
    "fieldname": "erpnext_account_doctype",
@@ -213,6 +204,7 @@
    "label": "ERPNext Account Type",
    "options": "DocType",
    "hidden": 1,
+   "default": "Account",
    "description": "Set to 'Account' when ERPNext is installed"
   },
   {
@@ -223,11 +215,6 @@
    "description": "Link to the corresponding ERPNext bank account"
   },
   {
-   "fieldname": "erpnext_section",
-   "fieldtype": "Section Break",
-   "label": "ERPNext Integration"
-  },
-  {
    "default": "0",
    "fieldname": "auto_fetch",
    "fieldtype": "Check",
@@ -235,9 +222,44 @@
    "description": "When enabled, transactions are automatically fetched hourly"
   },
   {
+   "fieldname": "technical_section",
+   "fieldtype": "Section Break",
+   "label": "Technische Details",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "customer_number",
+   "fieldtype": "Data",
+   "label": "Customer Number",
+   "read_only": 1,
+   "description": "Bank customer number"
+  },
+  {
+   "fieldname": "hibiscus_id",
+   "fieldtype": "Data",
+   "label": "Hibiscus ID",
+   "read_only": 1,
+   "description": "Internal account ID in Hibiscus server"
+  },
+  {
+   "fieldname": "sub_account",
+   "fieldtype": "Data",
+   "label": "Sub Account",
+   "read_only": 1,
+   "description": "Sub-account identifier if applicable"
+  },
+  {
+   "fieldname": "hibiscus_comment",
+   "fieldtype": "Text",
+   "label": "Hibiscus Comment",
+   "read_only": 1,
+   "description": "Comment stored in Hibiscus for this account"
+  },
+  {
    "fieldname": "access_permissions_section",
    "fieldtype": "Section Break",
-   "label": "Access Permissions"
+   "label": "Zugriffsrechte",
+   "collapsible": 1
   },
   {
    "fieldname": "permitted_users",
@@ -260,7 +282,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-27 21:16:07.467721",
+ "modified": "2026-02-28 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
  "name": "Hibiscus Connect Bank Account",

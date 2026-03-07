@@ -4,15 +4,11 @@ Logout,Abmelden,
 Reload,Neu laden,
 Session Defaults,Sitzungsstandards,
 View Website,Webseite anzeigen,
-
-# Hibiscus Connect Settings - Section Labels
 Connection,Verbindung,
 SEPA Creditor,SEPA Gläubiger,
 Auto Booking,Automatisches Verbuchen,
 SEPA Direct Debit,SEPA Lastschrift,
 Transaction Export,Transaktionsexport,
-
-# Hibiscus Connect Settings - Field Labels
 Server,Server,
 Port,Port,
 Master Password,Master-Passwort,
@@ -30,8 +26,6 @@ From Date,Von Datum,
 To Date,Bis Datum,
 BIC,BIC,
 Export,Exportieren,
-
-# Hibiscus Connect Settings - Field Descriptions
 Hibiscus server connection settings,Verbindungseinstellungen zum Hibiscus-Server,
 Hostname or IP address of the Hibiscus server (e.g. hbci.example.com),Hostname oder IP-Adresse des Hibiscus-Servers (z.B. hbci.example.com),
 Port number for XML-RPC connection (typically 443 for SSL or 8080 for direct),Portnummer für XML-RPC-Verbindung (typisch 443 für SSL oder 8080 für direkt),
@@ -54,15 +48,11 @@ Start date for transaction export,Startdatum für Transaktionsexport,
 End date for transaction export,Enddatum für Transaktionsexport,
 BIC of the selected export account (auto-filled),BIC des ausgewählten Export-Kontos (automatisch ausgefüllt),
 Generates a CSV file with transactions from the selected date range and account,Erzeugt eine CSV-Datei mit Transaktionen aus dem ausgewählten Zeitraum und Konto,
-
-# Bank Account Permission Fields
 Access Permissions,Zugriffsberechtigungen,
 Permitted Users,Berechtigte Benutzer,
 Permitted Roles,Berechtigte Rollen,
 Users who can access this bank account,Benutzer die auf dieses Bankkonto zugreifen können,
 All users with these roles can access this bank account,Alle Benutzer mit diesen Rollen können auf dieses Bankkonto zugreifen,
-
-# Connection Test Dialog
 Hibiscus Connection Test,Hibiscus Verbindungstest,
 Connection successful!,Verbindung erfolgreich!,
 Found,Gefunden,
@@ -80,7 +70,6 @@ Transactions,Transaktionen,
 Bank Accounts,Bankkonten,
 Transaction Categories,Transaktionskategorien,
 Settings,Einstellungen,
-# Widget labels
 Account Status,Kontostatus,
 Sync Health,Sync-Status,
 Loading...,Lädt...,
@@ -105,7 +94,6 @@ Rate,Quote,
 Could not load health status,Konnte Status nicht laden,
 Tx,Tx,
 transactions,Transaktionen,
-# DocType names
 Hibiscus Connect Settings,Hibiscus Connect Einstellungen,
 Hibiscus Connect Transaction,Hibiscus Connect Transaktion,
 Hibiscus Connect Bank Account,Hibiscus Connect Bankkonto,
@@ -116,7 +104,7 @@ Fetching transactions...,Transaktionen werden abgerufen...,
 Fetch Transactions Result,Ergebnis Transaktionsabruf,
 Successfully fetched transactions from,Transaktionen erfolgreich abgerufen von,
 No accounts configured for auto-fetch.,Keine Konten für automatischen Abruf konfiguriert.,
-Enable "Auto Fetch Transactions" on the accounts you want to fetch.,Aktivieren Sie "Transaktionen automatisch abrufen" bei den gewünschten Konten.,
+"Enable ""Auto Fetch Transactions"" on the accounts you want to fetch.","Aktivieren Sie ""Transaktionen automatisch abrufen"" bei den gewünschten Konten.",
 Errors,Fehler,
 Success,Erfolgreich,
 Select accounts to create:,Anzulegende Konten auswählen:,
@@ -126,17 +114,11 @@ Accounts Processed,Konten verarbeitet,
 Created,Angelegt,
 Updated,Aktualisiert,
 account(s),Konto(en),
-
-# Error Messages
 Authentication failed. Please check the master password.,Authentifizierung fehlgeschlagen. Bitte überprüfen Sie das Master-Passwort.,
 Server not found. Please check the server hostname.,Server nicht gefunden. Bitte überprüfen Sie den Hostnamen.,
 Connection refused. Please check if the server is running and the port is correct.,Verbindung abgelehnt. Bitte überprüfen Sie ob der Server läuft und der Port korrekt ist.,
 SSL certificate error. Try enabling 'Ignore Invalid Certificate' option.,SSL-Zertifikatsfehler. Versuchen Sie die Option 'Ungültiges Zertifikat ignorieren' zu aktivieren.,
 Connection timed out. The server may be unreachable or the port may be wrong.,Zeitüberschreitung. Der Server ist möglicherweise nicht erreichbar oder der Port ist falsch.,
-
-# ============================================
-# Hibiscus Connect Bank Account - Field Labels
-# ============================================
 Account Name From Bank,Kontobezeichnung von Bank,
 Account Number,Kontonummer,
 Bank Code,Bankleitzahl,
@@ -153,8 +135,6 @@ ERPNext Account Type,ERPNext-Kontotyp,
 ERPNext Account,ERPNext-Konto,
 Auto Fetch Transactions,Transaktionen automatisch abrufen,
 Details,Details,
-
-# Bank Account - Field Descriptions
 Description,Beschreibung,
 Custom description to help identify this account,Eigene Beschreibung zur Identifizierung dieses Kontos,
 International Bank Account Number,Internationale Bankkontonummer,
@@ -174,8 +154,6 @@ Comment stored in Hibiscus for this account,In Hibiscus gespeicherter Kommentar 
 Set to 'Account' when ERPNext is installed,Auf 'Account' setzen wenn ERPNext installiert ist,
 Link to the corresponding ERPNext bank account,Verknüpfung zum entsprechenden ERPNext-Bankkonto,
 When enabled transactions are automatically fetched hourly,Wenn aktiviert werden Transaktionen stündlich automatisch abgerufen,
-
-# Bank Account - Display Settings
 Display Settings,Anzeigeeinstellungen,
 Accent Color 1,Akzentfarbe 1,
 Accent Color 2,Akzentfarbe 2,
@@ -187,10 +165,6 @@ Secondary gradient color for dashboard display,Sekundäre Verlaufsfarbe für Das
 Text color on gradient background (Auto detects based on background brightness),Textfarbe auf Verlaufshintergrund (Auto erkennt basierend auf Hintergrundhelligkeit),
 Sort Order,Sortierreihenfolge,
 Display order in dashboard widget (lower numbers appear first),Anzeigereihenfolge im Dashboard-Widget (kleinere Zahlen erscheinen zuerst),
-
-# ============================================
-# Hibiscus Connect Transaction - Field Labels
-# ============================================
 Transaction,Transaktion,
 Transaction Type,Transaktionsart,
 Amount,Betrag,
@@ -215,8 +189,6 @@ Automation,Automatisierung,
 Log,Protokoll,
 Bank Account,Bankkonto,
 Status,Status,
-
-# Transaction - Field Descriptions
 Type of transaction (e.g. Lastschrift Überweisung),Transaktionsart (z.B. Lastschrift Überweisung),
 Transaction amount (positive for credits negative for debits),Transaktionsbetrag (positiv für Gutschriften negativ für Belastungen),
 Customer reference number from the transaction,Kundenreferenznummer aus der Transaktion,
@@ -239,8 +211,6 @@ Linked customer for this transaction (ERPNext),Verknüpfter Kunde für diese Tra
 Set to 'Customer' when ERPNext is installed,Auf 'Customer' setzen wenn ERPNext installiert ist,
 Name of the linked customer,Name des verknüpften Kunden,
 Processing status of the transaction,Verarbeitungsstatus der Transaktion,
-
-# Transaction Status Values
 new,neu,
 auto booked,automatisch verbucht,
 partially auto booked,teilweise automatisch verbucht,
@@ -249,10 +219,6 @@ partially booked,teilweise verbucht,
 legacy booked,legacy verbucht,
 cancelled,abgebrochen,
 other income,andere Einnahme,
-
-# ============================================
-# SEPA Lastschrift Mandat - Field Labels
-# ============================================
 Creditor,Gläubiger,
 Creditor ID,Gläubiger-ID,
 Debtor,Schuldner,
@@ -266,8 +232,6 @@ SEPA Type,SEPA-Typ,
 First Debit Done,Erstmalige Lastschrift erfolgt,
 Final Debit,Letztmalige Lastschrift,
 End to End ID,End-to-End-ID,
-
-# SEPA Mandat - Field Descriptions
 Link to the customer (ERPNext),Verknüpfung zum Kunden (ERPNext),
 Status of the SEPA mandate,Status des SEPA-Mandats,
 IBAN of the creditor's bank account,IBAN des Gläubiger-Bankkontos,
@@ -282,35 +246,17 @@ Name of the account holder (debtor),Name des Kontoinhabers (Schuldner),
 Hibiscus internal account ID for the creditor,Interne Hibiscus-Konto-ID für den Gläubiger,
 Check if the first direct debit has been executed,Aktivieren wenn die erste Lastschrift ausgeführt wurde,
 Check if this is the last direct debit under this mandate,Aktivieren wenn dies die letzte Lastschrift unter diesem Mandat ist,
-
-# SEPA Mandat Status Values
 active,aktiv,
 inactive,inaktiv,
-
-# ============================================
-# Transaction Category - Field Labels
-# ============================================
 Category,Kategorie,
 Category name for classifying transactions,Kategoriename zur Klassifizierung von Transaktionen,
-
-# ============================================
-# General UI Labels
-# ============================================
 Zahlung verbuchen,Zahlung verbuchen,
 Bankkonto erstellen,Bankkonto erstellen,
 Notification,Benachrichtigung,
-
-# ============================================
-# Workspace Labels
-# ============================================
 Banking,Banking,
 Transactions & Exports,Transaktionen & Exporte,
 Configuration,Konfiguration,
 Statement Exports,Kontoauszug-Exporte,
-
-# ============================================
-# Bank Statement Export - DocType
-# ============================================
 Bank Statement Export,Kontoauszug-Export,
 General Information,Allgemeine Informationen,
 From Date,Von Datum,
@@ -351,10 +297,6 @@ Created,Erstellt,
 Size,Größe,
 Action,Aktion,
 Download,Herunterladen,
-
-# ============================================
-# Bank Statement Export - Date Presets
-# ============================================
 Date Range Preset,Zeitraum-Schnellauswahl,
 Quick selection for common date ranges. Select 'Custom' to enter dates manually.,Schnellauswahl für gängige Zeiträume. Wählen Sie 'Benutzerdefiniert' für manuelle Eingabe.,
 Yesterday,Gestern,
@@ -382,7 +324,7 @@ Start date for the statement period,Startdatum für den Kontoauszugszeitraum,
 End date for the statement period,Enddatum für den Kontoauszugszeitraum,
 Loading files...,Dateien werden geladen...,
 Error loading files,Fehler beim Laden der Dateien,
-No files generated yet. Click "Generate Export" to create a file.,Noch keine Dateien generiert. Klicken Sie auf "Export generieren" um eine Datei zu erstellen.,
+"No files generated yet. Click ""Generate Export"" to create a file.","Noch keine Dateien generiert. Klicken Sie auf ""Export generieren"" um eine Datei zu erstellen.",
 file(s) available,Datei(en) verfügbar,
 Unknown,Unbekannt,
 Description,Beschreibung,
@@ -395,17 +337,13 @@ Automatically generate this export at the specified hour,Diesen Export automatis
 Auto Generate Hour,Uhrzeit für automatisches Generieren,
 Hour of the day (0-23) when the export should be automatically generated,Stunde des Tages (0-23) wann der Export automatisch generiert werden soll,
 Skip Weekends,Wochenenden überspringen,
-"Skip automatic generation on Saturdays and Sundays. Recommended when using 'Last Business Day' preset to avoid duplicate files.","Automatische Generierung an Samstagen und Sonntagen überspringen. Empfohlen bei Verwendung von 'Letzter Werktag' um doppelte Dateien zu vermeiden.",
+Skip automatic generation on Saturdays and Sundays. Recommended when using 'Last Business Day' preset to avoid duplicate files.,Automatische Generierung an Samstagen und Sonntagen überspringen. Empfohlen bei Verwendung von 'Letzter Werktag' um doppelte Dateien zu vermeiden.,
 Dashboard File Count,Anzahl Dateien für Dashboard,
 Number of recent files to show in the dashboard quick export widget (1-10),Anzahl der letzten Dateien die im Dashboard-Schnellexport angezeigt werden sollen (1-10),
 Account Description,Kontobeschreibung,
 Description of the bank account,Beschreibung des Bankkontos,
 Account Type,Kontotyp,
 Account type as provided by the bank,Kontotyp wie von der Bank übermittelt,
-
-# ============================================
-# Protected Exports
-# ============================================
 Protected Exports,Geschützte Exporte,
 Settings for protected bank statement exports,Einstellungen für geschützte Kontoauszug-Exporte,
 Protected Export Role,Rolle für geschützte Exporte,
@@ -425,10 +363,6 @@ You do not have permission to modify this protected export. Required role: {0},S
 Account Details,Kontodetails,
 Select a bank account to see details,Wählen Sie ein Bankkonto aus um Details zu sehen,
 Account Info,Kontoinformationen,
-
-# ============================================
-# Bank Code DocType - Labels and Descriptions
-# ============================================
 Bank Code,Bankleitzahl,
 Bank Code Import,Bankleitzahlen-Import,
 Bank Information,Bankinformationen,
@@ -451,8 +385,6 @@ Change Tracking,Änderungsverfolgung,
 Technical Details,Technische Details,
 Location,Standort,
 Merkmal,Merkmal,
-
-# Bank Code - Field Descriptions
 8-digit German bank code (Bankleitzahl),8-stellige deutsche Bankleitzahl,
 Bank Identifier Code (SWIFT code),Bank-Identifikationscode (SWIFT-Code),
 1 = Manages BLZ 2 = Does not manage BLZ,1 = Führt BLZ 2 = Führt BLZ nicht,
@@ -470,8 +402,6 @@ Indicates planned deletion of this BLZ,Zeigt geplante Löschung dieser BLZ an,
 Successor bank code after deletion,Nachfolge-Bankleitzahl nach Löschung,
 Start date of BLZ file validity,Startdatum der BLZ-Datei-Gültigkeit,
 End date of BLZ file validity,Enddatum der BLZ-Datei-Gültigkeit,
-
-# Settings - Bank Code Section
 Bundesbank Download URL,Bundesbank Download-URL,
 URL to the Bundesbank BLZ download page,URL zur Bundesbank BLZ-Download-Seite,
 Last BLZ Import,Letzter BLZ-Import,
@@ -481,18 +411,12 @@ Total number of bank codes in the database,Gesamtzahl der Bankleitzahlen in der 
 Import Bank Codes,Bankleitzahlen importieren,
 Download and import the latest BLZ data from Bundesbank,Aktuelle BLZ-Daten von der Bundesbank herunterladen und importieren,
 Import German bank codes (Bankleitzahlen) from Bundesbank,Deutsche Bankleitzahlen von der Bundesbank importieren,
-
-# Import Dialog
 Bank Code Import Result,Ergebnis Bankleitzahlen-Import,
 Importing bank codes from Bundesbank...,Bankleitzahlen werden von der Bundesbank importiert...,
 Bank codes imported successfully!,Bankleitzahlen erfolgreich importiert!,
 Import Failed,Import fehlgeschlagen,
 Total Records,Datensätze gesamt,
 Bank Codes,Bankleitzahlen,
-
-# ============================================
-# SMB Export - Field Labels
-# ============================================
 SMB Export,SMB-Export,
 Enable SMB Upload,SMB-Upload aktivieren,
 SMB Server,SMB-Server,
@@ -502,42 +426,34 @@ Username,Benutzername,
 Password,Passwort,
 Domain,Domäne,
 SMB Status,SMB-Status,
-
-# SMB Export - Field Descriptions
 Automatically upload generated files to an SMB/CIFS network share,Generierte Dateien automatisch auf eine SMB/CIFS-Netzwerkfreigabe hochladen,
 Server hostname or IP address (e.g. fileserver.local or 192.168.1.100),Server-Hostname oder IP-Adresse (z.B. fileserver.local oder 192.168.1.100),
-"Server hostname or IP address (e.g., fileserver.local or 192.168.1.100)","Server-Hostname oder IP-Adresse (z.B. fileserver.local oder 192.168.1.100)",
+"Server hostname or IP address (e.g., fileserver.local or 192.168.1.100)",Server-Hostname oder IP-Adresse (z.B. fileserver.local oder 192.168.1.100),
 Name of the shared folder (e.g. Banking),Name des freigegebenen Ordners (z.B. Banking),
-"Name of the shared folder (e.g., Banking)","Name des freigegebenen Ordners (z.B. Banking)",
+"Name of the shared folder (e.g., Banking)",Name des freigegebenen Ordners (z.B. Banking),
 Path within the share (e.g. Exports/2025). Leave empty for share root.,Pfad innerhalb der Freigabe (z.B. Exports/2025). Leer lassen für Freigabe-Stammverzeichnis.,
-"Path within the share (e.g., Exports/2025). Leave empty for share root.","Pfad innerhalb der Freigabe (z.B. Exports/2025). Leer lassen für Freigabe-Stammverzeichnis.",
+"Path within the share (e.g., Exports/2025). Leave empty for share root.",Pfad innerhalb der Freigabe (z.B. Exports/2025). Leer lassen für Freigabe-Stammverzeichnis.,
 Username for SMB authentication,Benutzername für SMB-Authentifizierung,
 Password for SMB authentication,Passwort für SMB-Authentifizierung,
 Windows domain (optional leave empty if not using Active Directory),Windows-Domäne (optional leer lassen wenn kein Active Directory verwendet wird),
 "Windows domain (optional, leave empty if not using Active Directory)","Windows-Domäne (optional, leer lassen wenn kein Active Directory verwendet wird)",
 SMB port (default: 445),SMB-Port (Standard: 445),
 Status of the last SMB upload attempt,Status des letzten SMB-Upload-Versuchs,
-
-# SMB Export - Static Filename
 Use Static Filename,Statischen Dateinamen verwenden,
 Static Filename,Statischer Dateiname,
 Use a fixed filename instead of the auto-generated name,Festen Dateinamen anstelle des automatisch generierten Namens verwenden,
 Fixed filename for SMB upload (e.g. bankexport.xml). Include the file extension.,Fester Dateiname für SMB-Upload (z.B. bankexport.xml). Dateiendung angeben.,
-"Fixed filename for SMB upload (e.g., bankexport.xml). Include the file extension.","Fester Dateiname für SMB-Upload (z.B. bankexport.xml). Dateiendung angeben.",
-
-# SMB Export - Warning Messages
+"Fixed filename for SMB upload (e.g., bankexport.xml). Include the file extension.",Fester Dateiname für SMB-Upload (z.B. bankexport.xml). Dateiendung angeben.,
 Warning: File Overwrite,Warnung: Datei-Überschreibung,
 When using a static filename the target file on the SMB share will be overwritten with each export. This means:,Bei Verwendung eines statischen Dateinamens wird die Zieldatei auf der SMB-Freigabe bei jedem Export überschrieben. Das bedeutet:,
-"When using a static filename, the target file on the SMB share will be overwritten with each export. This means:","Bei Verwendung eines statischen Dateinamens wird die Zieldatei auf der SMB-Freigabe bei jedem Export überschrieben. Das bedeutet:",
+"When using a static filename, the target file on the SMB share will be overwritten with each export. This means:",Bei Verwendung eines statischen Dateinamens wird die Zieldatei auf der SMB-Freigabe bei jedem Export überschrieben. Das bedeutet:,
 Previous exports with the same filename will be permanently deleted,Frühere Exporte mit dem gleichen Dateinamen werden dauerhaft gelöscht,
 Only the most recent export will be available on the network share,Nur der aktuellste Export wird auf der Netzwerkfreigabe verfügbar sein,
 This is useful when an external system always expects the same filename,Dies ist nützlich wenn ein externes System immer den gleichen Dateinamen erwartet,
 Local copies in Frappe are not affected and retain their unique names,Lokale Kopien in Frappe sind nicht betroffen und behalten ihre eindeutigen Namen,
 Tip,Tipp,
 Make sure this is the intended behavior before enabling this option.,Stellen Sie sicher dass dies das gewünschte Verhalten ist bevor Sie diese Option aktivieren.,
-"Make sure this is the intended behavior before enabling this option.","Stellen Sie sicher, dass dies das gewünschte Verhalten ist, bevor Sie diese Option aktivieren.",
-
-# SMB Export - Actions and Messages
+Make sure this is the intended behavior before enabling this option.,"Stellen Sie sicher, dass dies das gewünschte Verhalten ist, bevor Sie diese Option aktivieren.",
 Test SMB Connection,SMB-Verbindung testen,
 Testing SMB connection...,SMB-Verbindung wird getestet...,
 SMB upload is not enabled for this export.,SMB-Upload ist für diesen Export nicht aktiviert.,

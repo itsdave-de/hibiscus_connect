@@ -4,39 +4,27 @@
   "docstatus": 0,
   "doctype": "Hibiscus Connect Transaction Category",
   "modified": "2022-04-27 22:06:49.079093",
-  "name": "Zahlungseingang Debitor",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Zahlungseingang Debitor"
  },
  {
   "category": "Zahlungseingang Kreditor",
   "docstatus": 0,
   "doctype": "Hibiscus Connect Transaction Category",
   "modified": "2022-04-27 22:07:08.010721",
-  "name": "Zahlungseingang Kreditor",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Zahlungseingang Kreditor"
  },
  {
   "category": "Zahlungsausgang Kreditor",
   "docstatus": 0,
   "doctype": "Hibiscus Connect Transaction Category",
   "modified": "2022-04-27 22:15:22.099560",
-  "name": "Zahlungsausgang Kreditor",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Zahlungsausgang Kreditor"
  },
  {
   "category": "Zahlungsausgang Debitor",
   "docstatus": 0,
   "doctype": "Hibiscus Connect Transaction Category",
   "modified": "2022-04-27 22:15:39.324182",
-  "name": "Zahlungsausgang Debitor",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
+  "name": "Zahlungsausgang Debitor"
  }
 ]
