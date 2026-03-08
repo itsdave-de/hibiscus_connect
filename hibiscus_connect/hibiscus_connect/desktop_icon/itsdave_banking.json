@@ -1,0 +1,19 @@
+{
+ "app": "hibiscus_connect",
+ "creation": "2026-03-08 19:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "App",
+ "idx": 0,
+ "label": "itsdave Banking",
+ "link": "/desk/banking",
+ "link_type": "External",
+ "logo_url": "/assets/hibiscus_connect/images/banking-icon.svg",
+ "modified": "2026-03-08 19:00:00.000000",
+ "modified_by": "Administrator",
+ "name": "itsdave Banking",
+ "owner": "Administrator",
+ "roles": [],
+ "standard": 1
+}

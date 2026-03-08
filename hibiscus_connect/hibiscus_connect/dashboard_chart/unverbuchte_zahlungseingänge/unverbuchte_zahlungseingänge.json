@@ -29,6 +29,6 @@
  "timespan": "Last Quarter",
  "type": "Bar",
  "use_report_chart": 0,
- "value_based_on": "betrag",
+ "value_based_on": "amount",
  "y_axis": []
 }
