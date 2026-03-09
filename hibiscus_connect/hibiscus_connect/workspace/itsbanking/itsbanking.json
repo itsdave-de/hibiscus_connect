@@ -25,12 +25,12 @@
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
- "label": "Banking",
+ "label": "itsBanking",
  "links": [],
  "modified": "2026-03-03 10:58:16.672186",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
- "name": "Banking",
+ "name": "itsBanking",
  "number_cards": [],
  "owner": "D.Malinowski@itsdave.de",
  "parent_page": "",
@@ -86,5 +86,5 @@
    "type": "DocType"
   }
  ],
- "title": "Banking"
+ "title": "itsBanking"
 }

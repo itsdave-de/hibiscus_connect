@@ -1,0 +1,28 @@
+{
+ "app": "hibiscus_connect",
+ "creation": "2026-03-08 20:37:30",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "circle-dollar-sign",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Banking",
+   "link_to": "itsBanking",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-03-09 20:36:25.334605",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "itsBanking",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "itsBanking"
+}
