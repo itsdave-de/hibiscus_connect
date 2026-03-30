@@ -601,7 +601,7 @@ def get_next_termin_for_lastschrift(lastschrift_id):
 
 
 @frappe.whitelist()
-def bulk_set_next_termin(lastschrift_ids):
+def bulk_set_next_termin(lastschrift_ids, dry_run=False):
 	"""
 	Setzt mehrere Lastschriften auf den nächstmöglichen Zieltermin (targetdate).
 
@@ -610,11 +610,14 @@ def bulk_set_next_termin(lastschrift_ids):
 
 	Args:
 		lastschrift_ids: Liste von Lastschrift-IDs (als JSON-String oder Liste)
+		dry_run: Wenn True, wird nur eine Vorschau zurückgegeben ohne Änderungen
 
 	Returns:
-		dict mit Ergebnis
+		dict mit Ergebnis (und bei dry_run zusätzlich Details pro Lastschrift)
 	"""
 	import json
+
+	dry_run = dry_run in (True, "true", "True", 1, "1")
 
 	settings = frappe.get_single("Hibiscus Connect Settings")
 	if not settings.mysql_enabled:
@@ -633,13 +636,14 @@ def bulk_set_next_termin(lastschrift_ids):
 	updated = 0
 	skipped = 0
 	errors = []
-	today = datetime.now().date()
+	will_update = []
+	will_skip = []
 
 	for ls_id in lastschrift_ids:
 		try:
 			# Lastschrift-Daten holen - targetdate ist das maßgebliche Datum
 			cursor.execute(
-				"SELECT id, targetdate, sepatype, sequencetype, ausgefuehrt FROM sepalastschrift WHERE id = %s",
+				"SELECT id, targetdate, sepatype, sequencetype, ausgefuehrt, empfaenger_name FROM sepalastschrift WHERE id = %s",
 				(ls_id,)
 			)
 			result = cursor.fetchone()
@@ -650,52 +654,79 @@ def bulk_set_next_termin(lastschrift_ids):
 
 			if result[4] == 1:
 				skipped += 1
+				will_skip.append({"id": ls_id, "name": result[5] or "", "reason": "Bereits ausgeführt"})
 				continue
 
 			current_targetdate = result[1]
 			sepatype = result[2] or "CORE"
 			sequencetype = result[3] or "RCUR"
+			name = result[5] or ""
 
-			# Prüfen ob Zieltermin bereits in der Vergangenheit liegt
-			if current_targetdate and current_targetdate >= today:
+			# Nächstmöglichen Termin berechnen (berücksichtigt Vorlaufzeit)
+			new_targetdate = calculate_next_possible_termin(sepatype, sequencetype)
+			new_targetdate_date = datetime.strptime(new_targetdate, "%Y-%m-%d").date()
+
+			# Prüfen ob Zieltermin noch rechtzeitig einreichbar ist
+			if current_targetdate and current_targetdate >= new_targetdate_date:
 				skipped += 1
+				will_skip.append({
+					"id": ls_id,
+					"name": name,
+					"reason": "Zieltermin {} noch fristgerecht".format(
+						current_targetdate.strftime("%d.%m.%Y") if hasattr(current_targetdate, "strftime") else current_targetdate
+					)
+				})
 				continue
 
-			# Neuen Zieltermin berechnen
-			new_targetdate = calculate_next_possible_termin(sepatype, sequencetype)
-
-			# Update durchführen - targetdate UND termin aktualisieren
-			# termin wird auf den gleichen Wert gesetzt (Hibiscus-Erinnerung)
-			cursor.execute(
-				"UPDATE sepalastschrift SET targetdate = %s, termin = %s WHERE id = %s AND ausgefuehrt = 0",
-				(new_targetdate, new_targetdate, ls_id)
-			)
-
-			if cursor.rowcount > 0:
+			if dry_run:
 				updated += 1
+				will_update.append({
+					"id": ls_id,
+					"name": name,
+					"current_targetdate": str(current_targetdate) if current_targetdate else None,
+					"new_targetdate": new_targetdate,
+					"sepatype": sepatype,
+					"sequencetype": sequencetype,
+				})
+			else:
+				# Update durchführen - targetdate UND termin aktualisieren
+				# termin wird auf den gleichen Wert gesetzt (Hibiscus-Erinnerung)
+				cursor.execute(
+					"UPDATE sepalastschrift SET targetdate = %s, termin = %s WHERE id = %s AND ausgefuehrt = 0",
+					(new_targetdate, new_targetdate, ls_id)
+				)
+
+				if cursor.rowcount > 0:
+					updated += 1
 
 		except Exception as e:
 			errors.append(f"ID {ls_id}: {str(e)}")
 
-	conn.commit()
+	if not dry_run:
+		conn.commit()
+
 	conn.close()
 
-	# Ergebnis-Meldung
-	msg_parts = []
-	if updated > 0:
-		msg_parts.append(f"<b>{updated}</b> Lastschrift(en) aktualisiert")
-	if skipped > 0:
-		msg_parts.append(f"<b>{skipped}</b> übersprungen (Zieltermin noch gültig oder bereits ausgeführt)")
-	if errors:
-		msg_parts.append(f"<b>{len(errors)}</b> Fehler")
+	if not dry_run:
+		# Ergebnis-Meldung
+		msg_parts = []
+		if updated > 0:
+			msg_parts.append(f"<b>{updated}</b> Lastschrift(en) aktualisiert")
+		if skipped > 0:
+			msg_parts.append(f"<b>{skipped}</b> übersprungen (Zieltermin noch fristgerecht oder bereits ausgeführt)")
+		if errors:
+			msg_parts.append(f"<b>{len(errors)}</b> Fehler")
 
-	frappe.msgprint("<br>".join(msg_parts), title="Bulk-Update Ergebnis", indicator="green" if not errors else "orange")
+		frappe.msgprint("<br>".join(msg_parts), title="Bulk-Update Ergebnis", indicator="green" if not errors else "orange")
 
 	return {
 		"success": True,
 		"updated": updated,
 		"skipped": skipped,
-		"errors": errors
+		"errors": errors,
+		"will_update": will_update,
+		"will_skip": will_skip,
+		"dry_run": dry_run
 	}
 
 

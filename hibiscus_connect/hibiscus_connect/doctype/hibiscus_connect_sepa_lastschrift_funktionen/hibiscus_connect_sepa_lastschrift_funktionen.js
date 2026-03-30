@@ -302,30 +302,85 @@ function setup_bulk_actions(frm) {
 			return;
 		}
 
-		frappe.confirm(
-			`Moechten Sie fuer <b>${selected_ids.length}</b> ausgewaehlte Lastschrift(en) den <b>Zieltermin</b> auf den naechstmoeglichen Termin setzen?<br><br>
-			<small class="text-muted">
-				<b>SEPA-Vorlaufzeiten (ab heute):</b><br>
-				- CORE Erstlastschrift (FRST): 5 Werktage<br>
-				- CORE Folgelastschrift (RCUR): 2 Werktage<br>
-				- B2B: 1 Werktag<br><br>
-				Nur Lastschriften mit bereits abgelaufenem Zieltermin werden aktualisiert.
-			</small>`,
-			function() {
-				frappe.call({
-					method: "hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen.bulk_set_next_termin",
-					args: {
-						lastschrift_ids: JSON.stringify(selected_ids)
-					},
-					callback: function(r) {
-						if (r.message) {
-							// Tabelle neu laden
-							frm.trigger("load_lastschriften");
-						}
+		// Pre-Flight: Dry-Run um zu pruefen welche tatsaechlich angepasst werden
+		frappe.call({
+			method: "hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen.bulk_set_next_termin",
+			args: {
+				lastschrift_ids: JSON.stringify(selected_ids),
+				dry_run: true
+			},
+			callback: function(r) {
+				if (!r.message) return;
+
+				let result = r.message;
+				let will_update = result.will_update || [];
+				let will_skip = result.will_skip || [];
+
+				if (will_update.length === 0) {
+					frappe.msgprint({
+						title: "Keine Anpassung noetig",
+						message: `Alle ${will_skip.length} ausgewaehlten Lastschrift(en) haben noch einen fristgerechten Zieltermin und muessen nicht angepasst werden.`,
+						indicator: "green"
+					});
+					return;
+				}
+
+				// Detail-Tabelle fuer zu aendernde Lastschriften
+				let update_rows = will_update.map(function(item) {
+					let current = item.current_targetdate
+						? frappe.datetime.str_to_user(item.current_targetdate)
+						: "\u2013";
+					let neu = frappe.datetime.str_to_user(item.new_targetdate);
+					return `<tr>
+						<td>${item.name || item.id}</td>
+						<td>${current}</td>
+						<td><b>${neu}</b></td>
+						<td>${item.sepatype} / ${item.sequencetype}</td>
+					</tr>`;
+				}).join("");
+
+				let skip_info = "";
+				if (will_skip.length > 0) {
+					skip_info = `<br><p class="text-muted"><b>${will_skip.length}</b> Lastschrift(en) werden uebersprungen (Zieltermin noch fristgerecht oder bereits ausgefuehrt).</p>`;
+				}
+
+				let confirm_html = `
+					<p><b>${will_update.length}</b> von ${selected_ids.length} ausgewaehlten Lastschrift(en) werden angepasst:</p>
+					<div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+						<table class="table table-bordered table-sm" style="font-size: 0.9em;">
+							<thead><tr>
+								<th>Name</th>
+								<th>Aktueller Zieltermin</th>
+								<th>Neuer Zieltermin</th>
+								<th>Typ</th>
+							</tr></thead>
+							<tbody>${update_rows}</tbody>
+						</table>
+					</div>
+					${skip_info}
+					<br><small class="text-muted">
+						<b>SEPA-Vorlaufzeiten:</b>
+						CORE/FRST: 5 Werktage, CORE/RCUR: 2 Werktage, B2B: 1 Werktag
+					</small>`;
+
+				frappe.confirm(
+					confirm_html,
+					function() {
+						frappe.call({
+							method: "hibiscus_connect.hibiscus_connect.doctype.hibiscus_connect_sepa_lastschrift_funktionen.hibiscus_connect_sepa_lastschrift_funktionen.bulk_set_next_termin",
+							args: {
+								lastschrift_ids: JSON.stringify(selected_ids)
+							},
+							callback: function(r) {
+								if (r.message) {
+									frm.trigger("load_lastschriften");
+								}
+							}
+						});
 					}
-				});
+				);
 			}
-		);
+		});
 	});
 }
 
