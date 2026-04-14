@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: hibiscus_connect\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-13 00:00+0000\n"
+"PO-Revision-Date: 2026-04-13 00:00+0000\n"
+"Language: de\n"
+"Language-Team: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Frappe core strings that aren't translated upstream.
+# Putting them here forces our site to show German for these UI elements.
+
+msgid "Begin typing for results."
+msgstr "Suchbegriff eingeben..."
+
+msgid "No results found"
+msgstr "Keine Ergebnisse gefunden"
+
+# Hibiscus Connect specific
+
+msgid "Zahlung"
+msgstr "Zahlung"
+
+msgid "Buchungssatz"
+msgstr "Buchungssatz"
