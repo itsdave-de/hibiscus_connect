@@ -28,6 +28,16 @@ def create_custom_fields():
                 "insert_after": "payment_order",
                 "read_only": 0
             }
+        ],
+        "Journal Entry": [
+            {
+                "fieldname": "hibiscus_connect_transaction",
+                "fieldtype": "Link",
+                "label": "Hibiscus Connect Transaction",
+                "options": "Hibiscus Connect Transaction",
+                "insert_after": "cheque_date",
+                "read_only": 0
+            }
         ]
     }
 

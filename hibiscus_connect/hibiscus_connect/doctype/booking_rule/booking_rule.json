@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "field:counterparty_iban",
+ "creation": "2026-04-11 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "counterparty_iban",
+  "counterparty_name",
+  "enabled",
+  "column_break_1",
+  "booking_category",
+  "logo",
+  "section_party",
+  "party_type",
+  "party",
+  "column_break_2",
+  "expense_account",
+  "cost_center",
+  "section_stats",
+  "match_count",
+  "last_used"
+ ],
+ "fields": [
+  {
+   "fieldname": "counterparty_iban",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Counterparty IBAN",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "counterparty_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Counterparty Name",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "booking_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Booking Category",
+   "options": "Booking Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "logo",
+   "fieldtype": "Attach Image",
+   "label": "Logo"
+  },
+  {
+   "fieldname": "section_party",
+   "fieldtype": "Section Break",
+   "label": "Booking Details"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Party Type",
+   "options": "\nSupplier\nCustomer\nEmployee"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "label": "Party",
+   "options": "party_type"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_stats",
+   "fieldtype": "Section Break",
+   "label": "Statistics"
+  },
+  {
+   "default": "0",
+   "fieldname": "match_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Match Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_used",
+   "fieldtype": "Date",
+   "label": "Last Used",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-04-11 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Hibiscus Connect",
+ "name": "Booking Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Accounts User",
+   "write": 1
+  }
+ ],
+ "sort_field": "last_used",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

@@ -22,24 +22,20 @@ frappe.listview_settings['Hibiscus Connect Transaction'] = {
 			});
 		}, "Aktionen");
 		listview.page.add_button(__("andere Einnahme"), function() {
-			//(console.log(listview),
-			let trans_list = []
+			let trans_list = [];
 			$(".list-row-checkbox:checked").each(function(index, value) {
-				trans_list.push($(this).attr('data-name'))
-			})
+				trans_list.push($(this).attr('data-name'));
+			});
 			if (trans_list.length > 0) {
-				console.log(trans_list.length),
 				frappe.call({
 					method:'hibiscus_connect.tools.set_andere_einnahme',
-					args: {
-						"list": trans_list
-					},
+					args: { "list": trans_list },
 					callback: function() {
 						listview.refresh();
 					}
 				});
 			}
-		});
+		}, __("Aktionen"));
 	}
 
 }

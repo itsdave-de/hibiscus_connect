@@ -1,0 +1,271 @@
+<style>
+.book-transactions-page {
+	padding: 6px 15px 12px;
+}
+
+.book-transactions-page .stats-bar {
+	display: flex;
+	gap: 18px;
+	font-size: 13px;
+	color: var(--text-muted);
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.book-transactions-page .split-view {
+	display: flex;
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+	height: calc(100vh - 160px);
+	min-height: 400px;
+}
+
+.book-transactions-page .list-panel {
+	overflow-y: auto;
+	min-width: 300px;
+}
+
+.book-transactions-page .detail-panel {
+	overflow-y: auto;
+	padding: 20px;
+	background: var(--card-bg);
+	min-width: 280px;
+	flex: 1;
+}
+
+.book-transactions-page .resize-handle {
+	width: 5px;
+	cursor: col-resize;
+	background: var(--border-color);
+	flex-shrink: 0;
+	transition: background 0.15s;
+}
+.book-transactions-page .resize-handle:hover,
+.book-transactions-page .resize-handle.active {
+	background: var(--primary);
+}
+
+/* ── Table Normalization ── */
+.book-transactions-page .txn-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	table-layout: fixed;
+}
+
+.book-transactions-page .txn-table th,
+.book-transactions-page .txn-table td {
+	padding: 6px 8px;
+	vertical-align: middle;
+	border-bottom: 1px solid var(--border-color);
+	line-height: 1.3;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.book-transactions-page .txn-table thead {
+	position: sticky;
+	top: 0;
+	background: var(--card-bg);
+	z-index: 1;
+}
+
+.book-transactions-page .txn-table thead th {
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	color: var(--text-muted);
+	border-bottom: 2px solid var(--border-color);
+}
+
+.book-transactions-page .txn-table .col-check { width: 32px; }
+.book-transactions-page .txn-table .col-date  { width: 80px; }
+.book-transactions-page .txn-table .col-amount { width: 85px; text-align: right; }
+.book-transactions-page .txn-table .col-party  { width: 22%; }
+.book-transactions-page .txn-table .col-purpose { }
+.book-transactions-page .txn-table .col-badge  {
+	width: auto;
+	min-width: 140px;
+	white-space: nowrap !important;
+	overflow: visible !important;
+	text-overflow: clip !important;
+}
+
+.book-transactions-page .txn-row {
+	cursor: pointer;
+}
+.book-transactions-page .txn-row:hover {
+	background: var(--bg-light-gray);
+}
+.book-transactions-page .txn-row.selected {
+	background: var(--control-bg);
+	border-left: 3px solid var(--primary);
+}
+
+.book-transactions-page .list-paging {
+	padding: 6px 8px;
+	text-align: center;
+	border-top: 1px solid var(--border-color);
+	font-size: 12px;
+	display: none;
+}
+
+.book-transactions-page .detail-empty {
+	padding: 80px 20px;
+	text-align: center;
+	color: var(--text-muted);
+}
+
+.book-transactions-page .detail-empty .arrow-icon {
+	font-size: 40px;
+	opacity: 0.15;
+	margin-bottom: 8px;
+}
+
+/* ── Logos ── */
+.book-transactions-page .txn-logo {
+	width: 16px;
+	height: 16px;
+	margin-right: 6px;
+	vertical-align: middle;
+	border-radius: 2px;
+}
+
+/* ── Badges ── */
+.book-transactions-page .txn-badge {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+.book-transactions-page .badge-keyword {
+	background: #f5f5f5;
+	color: #424242;
+	border: 1px solid #e0e0e0;
+}
+.book-transactions-page .badge-learned {
+	background: #e3f2fd;
+	color: #1565c0;
+	border: 1px solid #bbdefb;
+}
+.book-transactions-page .badge-booked {
+	background: #e8f5e9;
+	color: #1b5e20;
+	border: 1px solid #c8e6c9;
+}
+
+/* ── Toolbar ── */
+.book-transactions-page .toolbar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 0 0 10px;
+	flex-wrap: wrap;
+	border-bottom: 1px solid var(--border-color);
+	margin-bottom: 10px;
+}
+.book-transactions-page .toolbar .tb-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+.book-transactions-page .toolbar label {
+	margin: 0;
+	font-size: 12px;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+.book-transactions-page .toolbar .tb-search {
+	flex: 1;
+	min-width: 240px;
+	max-width: 420px;
+}
+.book-transactions-page .toolbar select,
+.book-transactions-page .toolbar input[type="text"] {
+	height: 28px;
+	font-size: 13px;
+	padding: 2px 8px;
+}
+</style>
+
+<div class="book-transactions-page">
+	<div class="toolbar">
+		<div class="tb-group">
+			<label>Richtung</label>
+			<select class="form-control form-control-sm tb-direction" style="width:auto;">
+				<option value="All">Alle</option>
+				<option value="Outgoing">Ausgänge</option>
+				<option value="Incoming">Eingänge</option>
+			</select>
+		</div>
+		<div class="tb-group tb-search">
+			<input type="text" class="form-control form-control-sm tb-search-input"
+				placeholder="Suche: Name, IBAN, Zweck, Betrag, Datum...">
+		</div>
+		<div class="tb-group">
+			<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+				<input type="checkbox" class="tb-hide-booked" checked>
+				Verbuchte ausblenden
+			</label>
+		</div>
+		<div class="tb-group dropdown">
+			<button class="btn btn-default btn-sm dropdown-toggle"
+				type="button" data-toggle="dropdown" aria-expanded="false">
+				Aktionen
+			</button>
+			<ul class="dropdown-menu">
+				<li>
+					<a class="dropdown-item action-match-sinvs" href="#">
+						Ausgangsrechnungen automatisch verbuchen
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="stats-bar">
+			<span class="stat-total"></span>
+			<span class="stat-outgoing"></span>
+			<span class="stat-incoming"></span>
+		</div>
+	</div>
+	<div class="split-view">
+		<div class="list-panel">
+			<table class="txn-table">
+				<thead>
+					<tr>
+						<th class="col-check"><input type="checkbox" class="check-all"></th>
+						<th class="col-date">Datum</th>
+						<th class="col-amount">Betrag</th>
+						<th class="col-party">Gegenseite</th>
+						<th class="col-purpose">Verwendungszweck</th>
+						<th class="col-badge">Vorschlag</th>
+					</tr>
+				</thead>
+				<tbody class="transaction-rows"></tbody>
+			</table>
+			<div class="list-loading text-center" style="padding:40px;display:none;">
+				<div class="spinner-border text-primary" role="status"></div>
+				<p class="mt-2 text-muted">Lade Transaktionen...</p>
+			</div>
+			<div class="list-empty text-center text-muted" style="padding:40px;display:none;">
+				Keine unverbuchten Transaktionen gefunden.
+			</div>
+			<div class="list-paging">
+				<button class="btn btn-xs btn-default btn-prev">&larr; Zurück</button>
+				<span class="paging-info" style="margin:0 12px;"></span>
+				<button class="btn btn-xs btn-default btn-next">Weiter &rarr;</button>
+			</div>
+		</div>
+		<div class="resize-handle"></div>
+		<div class="detail-panel">
+			<div class="detail-empty">
+				<div class="arrow-icon">&larr;</div>
+				Transaktion in der Liste auswählen
+			</div>
+			<div class="detail-content" style="display:none;"></div>
+		</div>
+	</div>
+</div>

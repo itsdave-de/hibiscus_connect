@@ -1225,3 +1225,571 @@ def get_balance_history(account):
     values = list(daily_balance.values())
 
     return {"labels": labels, "values": values}
+
+
+# ── Booking Dialog (universal in/out) ────────────────────────────────
+
+@frappe.whitelist()
+def create_bank_account_for_supplier(supplier, iban, bic):
+    """Create a Bank Account for a supplier (mirror of create_bank_account_for_customer)."""
+    if not is_erpnext_installed():
+        return "ERPNext nicht installiert."
+    if not iban:
+        return "Keine IBAN angegeben."
+    if frappe.get_all("Bank Account", filters={"iban": iban}):
+        return "Bankkonto bereits vorhanden."
+
+    sdoc = frappe.get_doc("Supplier", supplier)
+    bank = frappe.get_all("Bank", filters={"swift_number": bic})
+    if not bank:
+        if bic:
+            bank = create_unknown_bank(bic).name
+        else:
+            bank = frappe.get_all("Bank", limit=1)
+            bank = bank[0]["name"] if bank else None
+            if not bank:
+                return "Keine Bank gefunden."
+    else:
+        bank = bank[0]["name"]
+
+    str_to = 140 - 6 - len(bank) - len(iban)
+    account_name = sdoc.supplier_name[0:str_to] + " | " + iban
+
+    frappe.get_doc({
+        "doctype": "Bank Account",
+        "account_name": account_name,
+        "bank": bank,
+        "party_type": "Supplier",
+        "party": supplier,
+        "iban": iban
+    }).save()
+    return "Bankkonto erfolgreich erstellt."
+
+
+@frappe.whitelist()
+def get_booking_dialog_data(hib_trans):
+    """Gather all data needed for the booking dialog."""
+    check_erpnext_required("Buchungsdialog")
+
+    doc = frappe.get_doc("Hibiscus Connect Transaction", hib_trans)
+    direction = "Incoming" if doc.amount > 0 else "Outgoing"
+    abs_amount = abs(doc.amount)
+
+    # Load categories filtered by direction
+    categories = frappe.get_all("Booking Category",
+        filters={"enabled": 1, "direction": ["in", [direction, "Both"]]},
+        fields=["category_name", "direction", "booking_type", "payment_type",
+                "party_type", "needs_invoice_matching", "default_account",
+                "default_cost_center", "purpose_keywords", "description", "sort_order"],
+        order_by="sort_order asc")
+
+    # 1. Check for learned Booking Rule (highest priority, direction-aware)
+    booking_rule = _find_booking_rule(doc.counterparty_iban, direction)
+
+    # 2. Auto-classify by keywords (fallback)
+    auto_category = _auto_classify_transaction(doc, categories)
+
+    # 3. Try to find party by IBAN
+    party_match = _find_party_by_iban(doc.counterparty_iban, direction)
+
+    # Booking Rule overrides both if available
+    if booking_rule:
+        auto_category = {
+            "category": booking_rule["booking_category"],
+            "source": "learned",
+            "match_count": booking_rule.get("match_count", 0),
+        }
+        if booking_rule.get("party") and booking_rule.get("party_type"):
+            party_match = {
+                "party_type": booking_rule["party_type"],
+                "party": booking_rule["party"],
+                "party_name": "",
+                "match_method": "learned",
+            }
+
+    # Get bank account info
+    bank_account_doc = frappe.get_doc("Hibiscus Connect Bank Account", doc.bank_account)
+    erpnext_account = bank_account_doc.erpnext_account if bank_account_doc.erpnext_account else ""
+
+    # If the transaction is already booked, collect the linked booking docs
+    # (Payment Entry via reference_no, Journal Entry via the custom
+    # `hibiscus_connect_transaction` field) so the UI can show a summary
+    # instead of the booking form.
+    linked_bookings = _find_linked_bookings(doc.name)
+
+    return {
+        "transaction": {
+            "name": doc.name,
+            "amount": doc.amount,
+            "abs_amount": abs_amount,
+            "transaction_date": str(doc.transaction_date),
+            "counterparty_name": doc.counterparty_name or "",
+            "counterparty_iban": doc.counterparty_iban or "",
+            "counterparty_bic": doc.counterparty_bic or "",
+            "purpose": doc.purpose or "",
+            "transaction_type": doc.transaction_type or "",
+            "gvcode": doc.gvcode or "",
+            "bank_account": doc.bank_account,
+            "erpnext_account": erpnext_account,
+            "status": doc.status,
+        },
+        "direction": direction,
+        "categories": categories,
+        "auto_category": auto_category,
+        "party_match": party_match,
+        "booking_rule": booking_rule,
+        "linked_bookings": linked_bookings,
+    }
+
+
+PAYMENT_TYPE_DE = {
+    "Receive": "Zahlungseingang",
+    "Pay": "Zahlungsausgang",
+    "Internal Transfer": "Interner Transfer",
+}
+
+
+def _find_linked_bookings(hib_trans_name):
+    """Return Payment Entries / Journal Entries that reference this transaction,
+    plus all Sales/Purchase Invoices allocated to those entries."""
+    bookings = []
+
+    pes = frappe.get_all("Payment Entry",
+        filters={"reference_no": hib_trans_name, "docstatus": 1},
+        fields=["name", "posting_date", "paid_amount", "payment_type",
+                "party_type", "party"])
+    for pe in pes:
+        pt_de = PAYMENT_TYPE_DE.get(pe.payment_type or "", pe.payment_type or "")
+        bookings.append({
+            "doctype": "Payment Entry",
+            "doctype_label": "Zahlung",
+            "name": pe.name,
+            "posting_date": str(pe.posting_date) if pe.posting_date else "",
+            "amount": pe.paid_amount,
+            "extra": f"{pt_de} – {pe.party or ''}".strip(" –"),
+        })
+
+        # Referenced invoices on this Payment Entry
+        refs = frappe.get_all("Payment Entry Reference",
+            filters={"parent": pe.name},
+            fields=["reference_doctype", "reference_name", "allocated_amount"])
+        for ref in refs:
+            bookings.append(_make_invoice_entry(
+                ref["reference_doctype"],
+                ref["reference_name"],
+                ref["allocated_amount"],
+            ))
+
+    # Journal Entry — custom field `hibiscus_connect_transaction`
+    if frappe.db.has_column("Journal Entry", "hibiscus_connect_transaction"):
+        jes = frappe.get_all("Journal Entry",
+            filters={"hibiscus_connect_transaction": hib_trans_name, "docstatus": 1},
+            fields=["name", "posting_date", "total_debit", "user_remark"])
+        for je in jes:
+            bookings.append({
+                "doctype": "Journal Entry",
+                "doctype_label": "Buchungssatz",
+                "name": je.name,
+                "posting_date": str(je.posting_date) if je.posting_date else "",
+                "amount": je.total_debit,
+                "extra": (je.user_remark or "")[:80],
+            })
+
+            # Referenced invoices on Journal Entry Accounts
+            jea = frappe.get_all("Journal Entry Account",
+                filters={
+                    "parent": je.name,
+                    "reference_type": ["in", ("Sales Invoice", "Purchase Invoice")],
+                },
+                fields=["reference_type", "reference_name", "debit_in_account_currency",
+                        "credit_in_account_currency"])
+            for ja in jea:
+                amount = ja["debit_in_account_currency"] or ja["credit_in_account_currency"] or 0
+                bookings.append(_make_invoice_entry(
+                    ja["reference_type"],
+                    ja["reference_name"],
+                    amount,
+                ))
+
+    return bookings
+
+
+INVOICE_LABELS = {
+    "Sales Invoice": "Ausgangsrechnung",
+    "Purchase Invoice": "Eingangsrechnung",
+}
+
+
+def _make_invoice_entry(doctype, name, allocated_amount):
+    """Build a linked-bookings entry for an invoice reference."""
+    label = INVOICE_LABELS.get(doctype, doctype)
+    extra_parts = []
+    if doctype == "Sales Invoice":
+        fields = ["customer_name", "grand_total", "outstanding_amount"]
+    elif doctype == "Purchase Invoice":
+        fields = ["supplier_name", "grand_total", "outstanding_amount", "bill_no"]
+    else:
+        fields = ["grand_total", "outstanding_amount"]
+
+    inv = frappe.db.get_value(doctype, name, fields, as_dict=True) or {}
+    party_name = inv.get("customer_name") or inv.get("supplier_name") or ""
+    if party_name:
+        extra_parts.append(party_name[:50])
+    if inv.get("bill_no"):
+        extra_parts.append(f"Ext.Beleg: {inv['bill_no']}")
+    outstanding = inv.get("outstanding_amount") or 0
+    if outstanding > 0:
+        extra_parts.append(f"noch offen: {frappe.utils.fmt_money(outstanding, currency='EUR')}")
+
+    return {
+        "doctype": doctype,
+        "doctype_label": label,
+        "name": name,
+        "posting_date": "",
+        "amount": allocated_amount or 0,
+        "extra": " · ".join(extra_parts),
+    }
+
+
+def _auto_classify_transaction(doc, categories):
+    """Rule-based auto-classification using purpose keywords."""
+    purpose_lower = (doc.purpose or "").lower()
+    tx_type_lower = (doc.transaction_type or "").lower()
+    combined = purpose_lower + " " + tx_type_lower
+
+    for cat in categories:
+        keywords = cat.get("purpose_keywords") or ""
+        if not keywords:
+            continue
+        for kw in keywords.split(","):
+            kw = kw.strip().lower()
+            if kw and kw in combined:
+                return {
+                    "category": cat["category_name"],
+                    "matched_keyword": kw,
+                }
+    return None
+
+
+def _find_party_by_iban(iban, direction):
+    """Find a Supplier or Customer by counterparty IBAN."""
+    if not iban:
+        return None
+
+    party_type = "Supplier" if direction == "Outgoing" else "Customer"
+    accounts = frappe.get_all("Bank Account",
+        filters={"iban": iban, "party_type": party_type},
+        fields=["party", "party_type"])
+    if accounts:
+        party = accounts[0]["party"]
+        party_name = frappe.db.get_value(party_type, party,
+            "supplier_name" if party_type == "Supplier" else "customer_name")
+        return {
+            "party_type": party_type,
+            "party": party,
+            "party_name": party_name,
+            "match_method": "iban",
+        }
+
+    # Also check the other direction for "Both" categories
+    other_type = "Customer" if direction == "Outgoing" else "Supplier"
+    accounts = frappe.get_all("Bank Account",
+        filters={"iban": iban, "party_type": other_type},
+        fields=["party", "party_type"])
+    if accounts:
+        party = accounts[0]["party"]
+        name_field = "customer_name" if other_type == "Customer" else "supplier_name"
+        party_name = frappe.db.get_value(other_type, party, name_field)
+        return {
+            "party_type": other_type,
+            "party": party,
+            "party_name": party_name,
+            "match_method": "iban",
+        }
+
+    return None
+
+
+def _find_booking_rule(iban, direction=None):
+    """Look up a learned Booking Rule by counterparty IBAN.
+
+    If `direction` is given (Incoming/Outgoing), the rule is only returned
+    when its Booking Category's direction matches the transaction direction
+    (or the category direction is "Both"). This prevents an outgoing-only
+    category like "Sonstige Ausgabe" from being suggested for an incoming
+    transaction.
+    """
+    if not iban:
+        return None
+    rule = frappe.db.get_value("Booking Rule",
+        filters={"counterparty_iban": iban, "enabled": 1},
+        fieldname=["booking_category", "party_type", "party",
+                   "expense_account", "cost_center", "match_count",
+                   "counterparty_name"],
+        as_dict=True)
+    if not rule:
+        return None
+    if direction and rule.get("booking_category"):
+        cat_direction = frappe.db.get_value(
+            "Booking Category", rule["booking_category"], "direction")
+        if cat_direction and cat_direction not in (direction, "Both"):
+            return None
+    return rule
+
+
+def _update_booking_rule(doc, booking_data, category):
+    """Create or update a Booking Rule after successful booking (learning)."""
+    iban = doc.counterparty_iban
+    if not iban:
+        return
+
+    existing = frappe.db.exists("Booking Rule", {"counterparty_iban": iban})
+
+    if existing:
+        rule = frappe.get_doc("Booking Rule", existing)
+        rule.match_count = (rule.match_count or 0) + 1
+        rule.last_used = date.today()
+        rule.counterparty_name = doc.counterparty_name or rule.counterparty_name
+        # Update fields if they changed
+        rule.booking_category = booking_data.get("category", rule.booking_category)
+        if booking_data.get("party"):
+            rule.party = booking_data["party"]
+            rule.party_type = category.party_type or ""
+        if booking_data.get("expense_account"):
+            rule.expense_account = booking_data["expense_account"]
+        if booking_data.get("cost_center"):
+            rule.cost_center = booking_data["cost_center"]
+        rule.save(ignore_permissions=True)
+    else:
+        rule = frappe.get_doc({
+            "doctype": "Booking Rule",
+            "counterparty_iban": iban,
+            "counterparty_name": doc.counterparty_name or "",
+            "booking_category": booking_data.get("category", ""),
+            "party_type": category.party_type or "",
+            "party": booking_data.get("party", ""),
+            "expense_account": booking_data.get("expense_account", ""),
+            "cost_center": booking_data.get("cost_center", ""),
+            "match_count": 1,
+            "last_used": date.today(),
+            "enabled": 1,
+        })
+        rule.insert(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_open_invoices(party_type, party):
+    """Return open invoices for a party (Purchase Invoice or Sales Invoice)."""
+    check_erpnext_required("Rechnungen laden")
+
+    if party_type == "Supplier":
+        invoices = frappe.get_all("Purchase Invoice",
+            filters={
+                "supplier": party,
+                "docstatus": 1,
+                "outstanding_amount": [">", 0],
+            },
+            fields=["name", "bill_no", "bill_date", "grand_total",
+                     "outstanding_amount", "due_date", "posting_date"],
+            order_by="due_date asc")
+    elif party_type == "Customer":
+        invoices = frappe.get_all("Sales Invoice",
+            filters={
+                "customer": party,
+                "docstatus": 1,
+                "outstanding_amount": [">", 0],
+                "name": ["not like", "SINV-RET-%"],
+            },
+            fields=["name", "grand_total", "outstanding_amount",
+                     "due_date", "posting_date"],
+            order_by="due_date asc")
+        # Sales Invoices don't have bill_no, use name as reference
+        for inv in invoices:
+            inv["bill_no"] = inv["name"]
+            inv["bill_date"] = inv["posting_date"]
+    else:
+        return []
+
+    today = date.today()
+    for inv in invoices:
+        inv["is_overdue"] = bool(inv.get("due_date") and inv["due_date"] < today)
+
+    return invoices
+
+
+@frappe.whitelist()
+def book_transaction(hib_trans, booking_data):
+    """Create the appropriate ERPNext booking document for a transaction."""
+    check_erpnext_required("Verbuchen")
+
+    if isinstance(booking_data, str):
+        booking_data = json.loads(booking_data)
+
+    doc = frappe.get_doc("Hibiscus Connect Transaction", hib_trans)
+    category = frappe.get_doc("Booking Category", booking_data["category"])
+    bank_account_doc = frappe.get_doc("Hibiscus Connect Bank Account", doc.bank_account)
+    erpnext_account = bank_account_doc.erpnext_account
+    abs_amount = abs(doc.amount)
+    settings = frappe.get_single("Hibiscus Connect Settings")
+
+    if category.booking_type == "Payment Entry":
+        result = _create_payment_entry(doc, category, booking_data, erpnext_account, abs_amount, settings)
+    else:
+        result = _create_journal_entry(doc, category, booking_data, erpnext_account, abs_amount, settings)
+
+    # Update transaction status and links
+    doc.status = "manually booked"
+    doc.add_link(result["doctype"], result["name"],
+                 amount=abs_amount, note="Manuell verbucht")
+    doc.save()
+    frappe.db.commit()
+
+    # Auto-create supplier bank account for future matching
+    if (category.party_type == "Supplier"
+            and booking_data.get("party")
+            and doc.counterparty_iban):
+        create_bank_account_for_supplier(
+            booking_data["party"],
+            doc.counterparty_iban,
+            doc.counterparty_bic or "")
+
+    # Learn: create/update Booking Rule for this IBAN
+    _update_booking_rule(doc, booking_data, category)
+
+    return {
+        "doctype": result["doctype"],
+        "name": result["name"],
+        "message": f'{result["doctype"]} {result["name"]} erstellt.'
+    }
+
+
+def _create_payment_entry(doc, category, booking_data, erpnext_account, abs_amount, settings):
+    """Create a Payment Entry based on category configuration."""
+    pe_data = {
+        "doctype": "Payment Entry",
+        "payment_type": category.payment_type,
+        "posting_date": doc.transaction_date,
+        "reference_no": doc.name,
+        "reference_date": doc.transaction_date,
+        "hibiscus_connect_transaction": doc.name,
+        "paid_amount": abs_amount,
+        "received_amount": abs_amount,
+        "source_exchange_rate": 1,
+        "target_exchange_rate": 1,
+    }
+
+    if category.payment_type == "Pay":
+        pe_data["paid_from"] = erpnext_account
+        pe_data["party_type"] = category.party_type
+        pe_data["party"] = booking_data.get("party", "")
+
+        # Determine paid_to from invoice or party default
+        invoices = booking_data.get("invoices", [])
+        if invoices and category.party_type == "Supplier":
+            first_inv = frappe.get_doc("Purchase Invoice", invoices[0]["name"])
+            pe_data["paid_to"] = first_inv.credit_to
+        elif category.party_type == "Supplier":
+            pe_data["paid_to"] = frappe.db.get_value("Company",
+                frappe.defaults.get_defaults().get("company"),
+                "default_payable_account")
+
+    elif category.payment_type == "Receive":
+        pe_data["paid_to"] = erpnext_account
+        pe_data["party_type"] = category.party_type
+        pe_data["party"] = booking_data.get("party", "")
+
+        invoices = booking_data.get("invoices", [])
+        if invoices and category.party_type == "Customer":
+            first_inv = frappe.get_doc("Sales Invoice", invoices[0]["name"])
+            pe_data["paid_from"] = first_inv.debit_to
+        elif category.party_type == "Customer":
+            pe_data["paid_from"] = frappe.db.get_value("Company",
+                frappe.defaults.get_defaults().get("company"),
+                "default_receivable_account")
+
+    elif category.payment_type == "Internal Transfer":
+        pe_data["paid_from"] = erpnext_account
+        pe_data["paid_to"] = booking_data.get("target_account", "")
+
+    pe = frappe.get_doc(pe_data)
+
+    # Add invoice references
+    invoices = booking_data.get("invoices", [])
+    if invoices:
+        inv_doctype = "Purchase Invoice" if category.party_type == "Supplier" else "Sales Invoice"
+        for inv_ref in invoices:
+            inv_doc = frappe.get_doc(inv_doctype, inv_ref["name"])
+            pe.append("references", {
+                "reference_doctype": inv_doctype,
+                "reference_name": inv_ref["name"],
+                "due_date": inv_doc.due_date,
+                "total_amount": inv_doc.grand_total,
+                "outstanding_amount": inv_doc.outstanding_amount,
+                "allocated_amount": float(inv_ref.get("allocated_amount", inv_doc.outstanding_amount)),
+            })
+
+    pe.save()
+
+    if settings.auto_submit_payment_entry and pe.references:
+        if pe.difference_amount == 0:
+            pe.submit()
+
+    return {"doctype": "Payment Entry", "name": pe.name}
+
+
+def _create_journal_entry(doc, category, booking_data, erpnext_account, abs_amount, settings):
+    """Create a Journal Entry for expense/income bookings."""
+    expense_account = booking_data.get("expense_account") or category.default_account
+    cost_center = booking_data.get("cost_center") or category.default_cost_center or ""
+    remark = booking_data.get("remark") or doc.purpose or ""
+
+    if not expense_account:
+        frappe.throw("Kein Aufwandskonto angegeben.")
+
+    is_outgoing = doc.amount < 0
+
+    accounts = []
+    if is_outgoing:
+        # Outgoing: debit expense, credit bank
+        accounts = [
+            {
+                "account": expense_account,
+                "debit_in_account_currency": abs_amount,
+                "credit_in_account_currency": 0,
+                "cost_center": cost_center,
+            },
+            {
+                "account": erpnext_account,
+                "debit_in_account_currency": 0,
+                "credit_in_account_currency": abs_amount,
+            }
+        ]
+    else:
+        # Incoming: debit bank, credit income
+        accounts = [
+            {
+                "account": erpnext_account,
+                "debit_in_account_currency": abs_amount,
+                "credit_in_account_currency": 0,
+            },
+            {
+                "account": expense_account,
+                "debit_in_account_currency": 0,
+                "credit_in_account_currency": abs_amount,
+                "cost_center": cost_center,
+            }
+        ]
+
+    je = frappe.get_doc({
+        "doctype": "Journal Entry",
+        "voucher_type": "Bank Entry",
+        "posting_date": doc.transaction_date,
+        "cheque_no": doc.name,
+        "cheque_date": doc.transaction_date,
+        "user_remark": remark,
+        "hibiscus_connect_transaction": doc.name,
+        "accounts": accounts,
+    })
+    je.save()
+
+    return {"doctype": "Journal Entry", "name": je.name}

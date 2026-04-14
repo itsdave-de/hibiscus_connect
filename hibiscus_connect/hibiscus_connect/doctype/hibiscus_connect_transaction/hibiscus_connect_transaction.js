@@ -18,27 +18,25 @@ frappe.ui.form.on('Hibiscus Connect Transaction', {
 				__('Rücklastschrift wurde verarbeitet.'),
 				'green'
 			);
-		} else {
-			// Normal transaction — show booking buttons
-			frm.add_custom_button('Zahlung verbuchen', function(){
-				frappe.call({
-					method: 'hibiscus_connect.tools.match_hibiscus_transaction',
-					args: {
-						hib_trans: frm.doc.name,
-					},
-					callback:function(r){
-						frappe.msgprint({
-							title: __('Notification'),
-							indicator: 'green',
-							message: __(r.message)
-						});
-						frappe.set_route('List', 'Hibiscus Connect Transaction', {
-							'status': 'new',
-							'amount': ['>', 0]});
-					}
-				})
-			});
-			frm.add_custom_button('Bankkonto erstellen', function(){
+		} else if (frm.doc.status === 'new') {
+			if (frm.doc.amount > 0) {
+				// Incoming: auto-matching (existing logic)
+				frm.add_custom_button(__('Automatisch verbuchen'), function(){
+					frappe.call({
+						method: 'hibiscus_connect.tools.match_hibiscus_transaction',
+						args: { hib_trans: frm.doc.name },
+						callback: function(r){
+							frappe.msgprint({
+								title: __('Notification'),
+								indicator: 'green',
+								message: __(r.message)
+							});
+							frm.reload_doc();
+						}
+					});
+				}, __('Aktionen'));
+			}
+			frm.add_custom_button(__('Bankkonto erstellen'), function(){
 				frappe.call({
 					method: 'hibiscus_connect.tools.create_bank_account_for_customer',
 					args: {
@@ -46,15 +44,15 @@ frappe.ui.form.on('Hibiscus Connect Transaction', {
 						bic: frm.doc.counterparty_bic,
 						iban: frm.doc.counterparty_iban
 					},
-					callback:function(r){
+					callback: function(r){
 						frappe.msgprint({
 							title: __('Notification'),
 							indicator: 'green',
 							message: __(r.message)
 						});
 					}
-				})
-			});
+				});
+			}, __('Aktionen'));
 		}
 
 		// Visually distinguish cancelled/replaced links

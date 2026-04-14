@@ -57,5 +57,6 @@ scheduler_events = {
 fixtures = [
 	"Hibiscus Connect Transaction Category",
 	"GVCode Mapping",
+	"Booking Category",
 	{"dt": "Custom HTML Block", "filters": [["name", "=", "SEPA Lastschrift Dashboard"]]}
 ]
