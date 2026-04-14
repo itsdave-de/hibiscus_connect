@@ -18,6 +18,7 @@ import xmlrpc.client as xc
 import ssl
 import socket
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 
 # Default timeout for XML-RPC requests (seconds)
@@ -79,8 +80,11 @@ class Hibiscus:
         self.port = port
         self.timeout = timeout
 
-        # Build the XML-RPC URL with authentication
-        url = f"https://admin:{master_password}@{server}:{port}/xmlrpc"
+        # Build the XML-RPC URL with authentication.
+        # The master password must be URL-encoded because Hibiscus generates
+        # passwords containing characters like '/' and '+' which would
+        # otherwise break urllib's URL parsing (nonnumeric port errors).
+        url = f"https://admin:{quote(master_password, safe='')}@{server}:{port}/xmlrpc"
 
         # Configure SSL context
         if ignore_cert == 1:
