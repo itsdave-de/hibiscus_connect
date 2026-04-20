@@ -1792,4 +1792,13 @@ def _create_journal_entry(doc, category, booking_data, erpnext_account, abs_amou
     })
     je.save()
 
+    if settings.auto_submit_journal_entry:
+        try:
+            je.submit()
+        except Exception as e:
+            frappe.log_error(
+                message=f"Auto-submit failed for Journal Entry {je.name}: {e}",
+                title="Hibiscus Auto-Submit JE",
+            )
+
     return {"doctype": "Journal Entry", "name": je.name}

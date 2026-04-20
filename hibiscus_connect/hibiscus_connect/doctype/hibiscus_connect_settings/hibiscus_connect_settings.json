@@ -19,6 +19,7 @@
   "creditor_id",
   "auto_booking_section",
   "auto_submit_payment_entry",
+  "auto_submit_journal_entry",
   "sepa_direct_debit_section",
   "sepa_direct_debit_enabled",
   "sepa_payment_terms_doctype",
@@ -145,6 +146,13 @@
    "fieldtype": "Check",
    "label": "Auto Submit Payment Entries",
    "description": "When enabled, automatically submits Payment Entries after matching transactions to invoices (requires ERPNext)"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_submit_journal_entry",
+   "fieldtype": "Check",
+   "label": "Auto Submit Journal Entries",
+   "description": "When enabled, automatically submits Journal Entries after manual booking. Failures are logged to the Error Log and the draft remains editable."
   },
   {
    "fieldname": "sepa_direct_debit_section",
