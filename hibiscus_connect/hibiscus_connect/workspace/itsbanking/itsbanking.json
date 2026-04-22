@@ -5,8 +5,8 @@
    "label": "offene Ausgangsrechnungen"
   },
   {
-   "chart_name": "Unverbuchte Zahlungseing\u00e4nge",
-   "label": "Unverbuchte Zahlungseing\u00e4nge"
+   "chart_name": "Unverbuchte Zahlungseingänge",
+   "label": "Unverbuchte Zahlungseingänge"
   }
  ],
  "content": "[{\"id\": \"qxdKjVW-Xg\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\">Banking</span>\", \"col\": 12}}, {\"id\": \"mh6W07Zo5h\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Transaction\", \"col\": 3}}, {\"id\": \"lCe_iJsenN\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SEPA Lastschriften\", \"col\": 3}}, {\"id\": \"SePaMandat01\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"SEPA Lastschrift Mandat\", \"col\": 3}}, {\"id\": \"Rzz0_TY91P\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"SEPA Lastschrift Dashboard\", \"col\": 12}}, {\"id\": \"CdFFzH78No\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"uGASuuLnKq\", \"type\": \"chart\", \"data\": {\"chart_name\": \"offene Ausgangsrechnungen\", \"col\": 6}}, {\"id\": \"s4KRaBcgQ0\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Unverbuchte Zahlungseing\\u00e4nge\", \"col\": 6}}, {\"id\": \"WXKqXRBCES\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"prjuFs46Uw\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Bank Account\", \"col\": 3}}, {\"id\": \"VeExVRN1S-\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Transaction Category\", \"col\": 3}}, {\"id\": \"SH9QNBXMm-\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Hibiscus Connect Settings\", \"col\": 3}}, {\"id\": \"ZEERIcAhwM\", \"type\": \"spacer\", \"data\": {\"col\": 12}}]",
@@ -25,12 +25,12 @@
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
- "label": "Banking",
+ "label": "itsBanking",
  "links": [],
  "modified": "2026-03-03 10:58:16.672186",
  "modified_by": "Administrator",
  "module": "Hibiscus Connect",
- "name": "Banking",
+ "name": "itsBanking",
  "number_cards": [],
  "owner": "D.Malinowski@itsdave.de",
  "parent_page": "",
@@ -86,5 +86,5 @@
    "type": "DocType"
   }
  ],
- "title": "Banking"
+ "title": "itsBanking"
 }
