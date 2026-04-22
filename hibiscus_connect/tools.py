@@ -446,10 +446,11 @@ def match_payment(hib_trans, sinvs=None, sinv_names=None):
 @frappe.whitelist()
 def match_all_payments(von=None, bis=None):
     check_erpnext_required("Automatisches Verbuchen")
-    if not von:
-        von = str(date.today() - timedelta(60))
     if not bis:
         bis = str(date.today())
+    if not von:
+        days = frappe.db.get_single_value("Hibiscus Connect Settings", "match_window_days") or 60
+        von = str(date.today() - timedelta(int(days)))
     stats = {
         "sinvs_matched_strict": 0,
         "sinvs_matched_loose": 0,

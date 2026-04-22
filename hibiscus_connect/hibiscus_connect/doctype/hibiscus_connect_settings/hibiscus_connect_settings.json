@@ -20,6 +20,7 @@
   "auto_booking_section",
   "auto_submit_payment_entry",
   "auto_submit_journal_entry",
+  "match_window_days",
   "sepa_direct_debit_section",
   "sepa_direct_debit_enabled",
   "sepa_payment_terms_doctype",
@@ -132,7 +133,7 @@
    "fieldname": "creditor_id",
    "fieldtype": "Data",
    "label": "Creditor Identifier",
-   "description": "Your SEPA Creditor Identifier (Gl\u00e4ubiger-ID) issued by Deutsche Bundesbank"
+   "description": "Your SEPA Creditor Identifier (Gläubiger-ID) issued by Deutsche Bundesbank"
   },
   {
    "fieldname": "auto_booking_section",
@@ -153,6 +154,13 @@
    "fieldtype": "Check",
    "label": "Auto Submit Journal Entries",
    "description": "When enabled, automatically submits Journal Entries after manual booking. Failures are logged to the Error Log and the draft remains editable."
+  },
+  {
+   "fieldname": "match_window_days",
+   "fieldtype": "Int",
+   "label": "Standard-Zeitraum für Auto-Verbuchung (Tage)",
+   "default": 60,
+   "description": "Anzahl Tage in die Vergangenheit, die der Knopf \"Zahlungen verbuchen\" standardmäßig betrachtet. Mit Shift+Klick kann ein eigener Zeitraum gewählt werden."
   },
   {
    "fieldname": "sepa_direct_debit_section",

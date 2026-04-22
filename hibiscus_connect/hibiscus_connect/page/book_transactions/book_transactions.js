@@ -46,63 +46,53 @@ frappe.pages['book-transactions'].on_page_load = function(wrapper) {
 	// Toolbar: Aktionen dropdown — auto-book incoming payments against open Sales Invoices
 	page.main.on("click", ".action-match-sinvs", function(e) {
 		e.preventDefault();
-		var default_bis = frappe.datetime.now_date();
-		var default_von = frappe.datetime.add_days(default_bis, -60);
-		var d = new frappe.ui.Dialog({
-			title: __("Zahlungen verbuchen"),
-			fields: [
-				{ fieldtype: "Date", fieldname: "von", label: __("Von"), default: default_von, reqd: 1 },
-				{ fieldtype: "Date", fieldname: "bis", label: __("Bis"), default: default_bis, reqd: 1 },
-				{ fieldtype: "HTML", fieldname: "hint", options:
-					"<p class=\"text-muted small\">" +
-					__("Eingehende, unverbuchte Zahlungen im gewählten Zeitraum werden gegen offene Ausgangsrechnungen abgeglichen und — wenn eindeutig — automatisch verbucht. Läuft als Hintergrund-Job.") +
-					"</p>"
-				}
-			],
-			primary_action_label: __("Starten"),
-			primary_action: function(values) {
-				d.hide();
-				var done_handler = function(data) {
-					frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
-					// Räume Progress-Dialoge auf — sofort + verzögert, weil das letzte Progress-Event manchmal nach dem done-Event eintrudelt
-					var _cleanup_progress = function() {
-						if (frappe.hide_progress) frappe.hide_progress();
-						$(".modal.fade.show, .modal.fade.in").filter(function(){ return $(this).find(".progress").length; }).modal("hide");
-					};
-					_cleanup_progress();
-					setTimeout(_cleanup_progress, 200);
-					setTimeout(_cleanup_progress, 800);
-					frappe.msgprint({
-						title: __("Automatisches Verbuchen abgeschlossen"),
-						message: (data && data.message) || __("Fertig."),
-						indicator: "green"
-					});
-					load_transactions(page);
+		var _run_match = function(args) {
+			var done_handler = function(data) {
+				frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
+				var _cleanup = function() {
+					if (frappe.hide_progress) frappe.hide_progress();
+					$(".modal.fade.show, .modal.fade.in").filter(function(){ return $(this).find(".progress").length; }).modal("hide");
 				};
-				frappe.realtime.on("hibiscus_match_all_payments_done", done_handler);
-				frappe.call({
-					method: "hibiscus_connect.tools.enqueue_match_all_payments",
-					args: { von: values.von, bis: values.bis },
-					callback: function(r) {
-						if (r && r.message && r.message.status === "enqueued") {
-							frappe.show_alert({ message: __("Job gestartet."), indicator: "blue" });
-						}
-					},
-					error: function() {
-						frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
-						// Räume Progress-Dialoge auf — sofort + verzögert, weil das letzte Progress-Event manchmal nach dem done-Event eintrudelt
-					var _cleanup_progress = function() {
-						if (frappe.hide_progress) frappe.hide_progress();
-						$(".modal.fade.show, .modal.fade.in").filter(function(){ return $(this).find(".progress").length; }).modal("hide");
-					};
-					_cleanup_progress();
-					setTimeout(_cleanup_progress, 200);
-					setTimeout(_cleanup_progress, 800);
-					}
+				_cleanup();
+				setTimeout(_cleanup, 200);
+				setTimeout(_cleanup, 800);
+				frappe.msgprint({
+					title: __("Automatisches Verbuchen abgeschlossen"),
+					message: (data && data.message) || __("Fertig."),
+					indicator: "green"
 				});
-			}
-		});
-		d.show();
+				load_transactions(page);
+			};
+			frappe.realtime.on("hibiscus_match_all_payments_done", done_handler);
+			frappe.call({
+				method: "hibiscus_connect.tools.enqueue_match_all_payments",
+				args: args || {},
+				callback: function(r) {
+					if (r && r.message && r.message.status === "enqueued") {
+						frappe.show_alert({ message: __("Job gestartet."), indicator: "blue" });
+					}
+				},
+				error: function() {
+					frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
+				}
+			});
+		};
+		if (e && e.shiftKey) {
+			var default_bis = frappe.datetime.now_date();
+			var default_von = frappe.datetime.add_days(default_bis, -60);
+			var d = new frappe.ui.Dialog({
+				title: __("Zahlungen verbuchen — Zeitraum wählen"),
+				fields: [
+					{ fieldtype: "Date", fieldname: "von", label: __("Von"), default: default_von, reqd: 1 },
+					{ fieldtype: "Date", fieldname: "bis", label: __("Bis"), default: default_bis, reqd: 1 }
+				],
+				primary_action_label: __("Starten"),
+				primary_action: function(values) { d.hide(); _run_match({ von: values.von, bis: values.bis }); }
+			});
+			d.show();
+		} else {
+			_run_match();
+		}
 	});
 
 	// Primary action
