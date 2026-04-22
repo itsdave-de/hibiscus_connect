@@ -444,8 +444,12 @@ def match_payment(hib_trans, sinvs=None, sinv_names=None):
 
 
 @frappe.whitelist()
-def match_all_payments(von = str(date.today()-timedelta(30)), bis = str(date.today())):
+def match_all_payments(von=None, bis=None):
     check_erpnext_required("Automatisches Verbuchen")
+    if not von:
+        von = str(date.today() - timedelta(60))
+    if not bis:
+        bis = str(date.today())
     stats = {
         "sinvs_matched_strict": 0,
         "sinvs_matched_loose": 0,
@@ -456,6 +460,7 @@ def match_all_payments(von = str(date.today()-timedelta(30)), bis = str(date.tod
     payments = frappe.get_all("Hibiscus Connect Transaction", filters={
         "status": "new",
         "amount": [">", 0],
+        "transaction_date": ["between", [von, bis]],
     }, fields = ["name", "counterparty_bic", "counterparty_iban"])
 
     unpaid_sinvs = _get_unpaid_sinv_numbers()
@@ -500,8 +505,17 @@ def match_all_payments(von = str(date.today()-timedelta(30)), bis = str(date.tod
 			title="Verarbeite Zahlungseingänge...",
 		)
 
+    result_text = get_text_from_stats(stats)
     pprint(stats)
-    return get_text_from_stats(stats)
+    try:
+        frappe.publish_realtime(
+            "hibiscus_match_all_payments_done",
+            {"message": result_text},
+            user=frappe.session.user,
+        )
+    except Exception:
+        pass
+    return result_text
 
 def debug_data(result):
     print("--------------------")
@@ -552,46 +566,72 @@ def find_matching_invoices_for_customer_payment(hib_trans_doc, sinv_names, custo
     }, fields=[
         "name", "customer", "grand_total"
     ], order_by="name asc")
-    #Prüfen, ob die offenen Rechungsbeträge in irgendeiner Kombination dem Zahlbetrag entsprechen
-    combined_totals = combine_totals(hib_trans_doc.amount, sinv_doc_list)
-    matched_sinvs = []
-    if combined_totals:
-        for ct in combined_totals:
-            for sinv in sinv_doc_list:
-                if ct == sinv["grand_total"]:
-                    if sinv["name"] not in matched_sinvs:
-                        matched_sinvs.append(sinv["name"])
-
-    return matched_sinvs
+    matched_indices = combine_totals(hib_trans_doc.amount, sinv_doc_list)
+    if matched_indices:
+        return [sinv_doc_list[i]["name"] for i in matched_indices]
+    return []
 
 
-def combine_totals(sum, sinvs): #gibt ggf. eine Liste an Beträgen zurück, die summiert den Zahlbetrag ergeben
-    #Summen aller Rechnungen sammeln
-    sinv_totals = []
-    for sinv in sinvs:
-        sinv_totals.append(sinv["grand_total"])
+def combine_totals(target_amount, sinv_list):
+    """Find a subset of sinv_list whose grand_totals sum to target_amount.
 
-    result = subset_sum(sinv_totals, sum)
-    if result:
-        return result
-    else:
+    Returns a list of indices into sinv_list, or None.
+    Uses DP (O(N * target_in_cents)) — handles 100+ invoices without exploding.
+    """
+    if not sinv_list or target_amount is None:
         return None
+    target_cents = int(round(float(target_amount) * 100))
+    if target_cents <= 0:
+        return None
+    nums_cents = [int(round(float(s["grand_total"]) * 100)) for s in sinv_list]
+    return _subset_sum_indices(nums_cents, target_cents)
 
-#stolen from https://stackoverflow.com/questions/34517540/find-all-combinations-of-a-list-of-numbers-with-a-given-sum  and adapted afterwards
-def subset_sum(numbers, target, partial=[]): #Ermittelt mögliche Kombinatiinen der Rechnungssummen
-    s = sum(partial)
-    # check if the partial sum is equals to target
-    if round(s,3) == target:
-        print("sum(%s)=%s" % (partial, target))
-        return partial
-    if s > target:
-        return # if we reach the number why bother to continue
-    for i in range(len(numbers)):
-        n = numbers[i]
-        remaining = numbers[i + 1:]
-        result = subset_sum(remaining, target, partial + [n])
-        if result:
-            return result
+
+def _subset_sum_indices(nums_cents, target_cents):
+    """DP subset-sum on positive integer cents. Returns list of original indices, or None.
+
+    Each item used at most once. Reconstructs one valid subset via parent pointers.
+    Memory bounded by number of distinct reachable sums (<= target_cents + 1).
+    """
+    # parent[s] = (previous_sum, item_index) — how sum s was first reached
+    parent = {0: None}
+    for i, val in enumerate(nums_cents):
+        if val <= 0 or val > target_cents:
+            continue
+        new_entries = {}
+        for s in parent:
+            new_s = s + val
+            if new_s > target_cents or new_s in parent or new_s in new_entries:
+                continue
+            new_entries[new_s] = (s, i)
+            if new_s == target_cents:
+                parent.update(new_entries)
+                indices = []
+                cur = target_cents
+                while parent[cur] is not None:
+                    prev_s, idx = parent[cur]
+                    indices.append(idx)
+                    cur = prev_s
+                indices.reverse()
+                return indices
+        parent.update(new_entries)
+    return None
+
+
+def subset_sum(numbers, target, partial=None):
+    """Backwards-compatible wrapper: returns list of values from numbers summing to target.
+
+    Kept for any external callers; new code should use _subset_sum_indices directly.
+    """
+    if not numbers or target is None:
+        return None
+    target_cents = int(round(float(target) * 100))
+    nums_cents = [int(round(float(n) * 100)) for n in numbers]
+    indices = _subset_sum_indices(nums_cents, target_cents)
+    if indices is None:
+        return None
+    return [numbers[i] for i in indices]
+
 
 def get_sinvs_for_matched_totals(totals, sinvs):
     pass
@@ -1802,3 +1842,22 @@ def _create_journal_entry(doc, category, booking_data, erpnext_account, abs_amou
             )
 
     return {"doctype": "Journal Entry", "name": je.name}
+
+
+@frappe.whitelist()
+def enqueue_match_all_payments(von=None, bis=None):
+    """Enqueue match_all_payments as a long-running background job.
+
+    Frontend listens for realtime event "hibiscus_match_all_payments_done" for completion
+    and the standard frappe.publish_progress channel for progress updates.
+    """
+    check_erpnext_required("Automatisches Verbuchen")
+    job = frappe.enqueue(
+        "hibiscus_connect.tools.match_all_payments",
+        queue="long",
+        timeout=1500,
+        von=von,
+        bis=bis,
+        job_name=f"hibiscus_match_all_payments_{frappe.session.user}",
+    )
+    return {"job_id": job.id, "status": "enqueued"}
