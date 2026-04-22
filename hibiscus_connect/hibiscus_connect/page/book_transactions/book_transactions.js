@@ -64,7 +64,14 @@ frappe.pages['book-transactions'].on_page_load = function(wrapper) {
 				d.hide();
 				var done_handler = function(data) {
 					frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
-					frappe.hide_progress();
+					// Räume Progress-Dialoge auf — sofort + verzögert, weil das letzte Progress-Event manchmal nach dem done-Event eintrudelt
+					var _cleanup_progress = function() {
+						if (frappe.hide_progress) frappe.hide_progress();
+						$(".modal.fade.show, .modal.fade.in").filter(function(){ return $(this).find(".progress").length; }).modal("hide");
+					};
+					_cleanup_progress();
+					setTimeout(_cleanup_progress, 200);
+					setTimeout(_cleanup_progress, 800);
 					frappe.msgprint({
 						title: __("Automatisches Verbuchen abgeschlossen"),
 						message: (data && data.message) || __("Fertig."),
@@ -73,7 +80,6 @@ frappe.pages['book-transactions'].on_page_load = function(wrapper) {
 					load_transactions(page);
 				};
 				frappe.realtime.on("hibiscus_match_all_payments_done", done_handler);
-				frappe.show_progress(__("Ausgangsrechnungen werden abgeglichen..."), 0, 100);
 				frappe.call({
 					method: "hibiscus_connect.tools.enqueue_match_all_payments",
 					args: { von: values.von, bis: values.bis },
@@ -84,7 +90,14 @@ frappe.pages['book-transactions'].on_page_load = function(wrapper) {
 					},
 					error: function() {
 						frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
-						frappe.hide_progress();
+						// Räume Progress-Dialoge auf — sofort + verzögert, weil das letzte Progress-Event manchmal nach dem done-Event eintrudelt
+					var _cleanup_progress = function() {
+						if (frappe.hide_progress) frappe.hide_progress();
+						$(".modal.fade.show, .modal.fade.in").filter(function(){ return $(this).find(".progress").length; }).modal("hide");
+					};
+					_cleanup_progress();
+					setTimeout(_cleanup_progress, 200);
+					setTimeout(_cleanup_progress, 800);
 					}
 				});
 			}

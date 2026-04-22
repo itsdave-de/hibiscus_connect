@@ -843,13 +843,13 @@ def _get_payment_entry_reference(sinv):
 
 def get_text_from_stats(stats):
     html = (
-        f"<h2>Summary of Processed Payments</h2>"
+        f"<h2>Übersicht verarbeiteter Zahlungen</h2>"
         f"<ul style='list-style-type: disc; padding-left: 20px;'>"
-        f"<li><strong>Payments Processed:</strong> {stats['payments_processed']}</li>"
-        f"<li><strong>Strictly Matched Invoices:</strong> {stats['sinvs_matched_strict']}</li>"
-        f"<li><strong>Loosely Matched Invoices:</strong> {stats['sinvs_matched_loose']}</li>"
-        f"<li><strong>Customer Matched Invoices:</strong> {stats['sinvs_matched_cust']}</li>"
-        f"<li><strong>Totals Matched:</strong> {stats['totals_matched']}</li>"
+        f"<li><strong>Verarbeitete Zahlungen:</strong> {stats['payments_processed']}</li>"
+        f"<li><strong>Treffer per Rechnungsnummer (exakt):</strong> {stats['sinvs_matched_strict']}</li>"
+        f"<li><strong>Treffer per Rechnungsnummer (unscharf):</strong> {stats['sinvs_matched_loose']}</li>"
+        f"<li><strong>Treffer per Kunde:</strong> {stats['sinvs_matched_cust']}</li>"
+        f"<li><strong>Beträge übereingestimmt:</strong> {stats['totals_matched']}</li>"
         f"</ul>"
     )
     return html
