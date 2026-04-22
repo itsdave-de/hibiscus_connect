@@ -46,26 +46,50 @@ frappe.pages['book-transactions'].on_page_load = function(wrapper) {
 	// Toolbar: Aktionen dropdown — auto-book incoming payments against open Sales Invoices
 	page.main.on("click", ".action-match-sinvs", function(e) {
 		e.preventDefault();
-		frappe.confirm(
-			__("Alle eingehenden, unverbuchten Zahlungen der letzten 30 Tage "
-			 + "werden gegen offene Ausgangsrechnungen abgeglichen und — "
-			 + "wenn eindeutig — automatisch verbucht. Fortfahren?"),
-			function() {
+		var default_bis = frappe.datetime.now_date();
+		var default_von = frappe.datetime.add_days(default_bis, -60);
+		var d = new frappe.ui.Dialog({
+			title: __("Zahlungen verbuchen"),
+			fields: [
+				{ fieldtype: "Date", fieldname: "von", label: __("Von"), default: default_von, reqd: 1 },
+				{ fieldtype: "Date", fieldname: "bis", label: __("Bis"), default: default_bis, reqd: 1 },
+				{ fieldtype: "HTML", fieldname: "hint", options:
+					"<p class=\"text-muted small\">" +
+					__("Eingehende, unverbuchte Zahlungen im gewählten Zeitraum werden gegen offene Ausgangsrechnungen abgeglichen und — wenn eindeutig — automatisch verbucht. Läuft als Hintergrund-Job.") +
+					"</p>"
+				}
+			],
+			primary_action_label: __("Starten"),
+			primary_action: function(values) {
+				d.hide();
+				var done_handler = function(data) {
+					frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
+					frappe.hide_progress();
+					frappe.msgprint({
+						title: __("Automatisches Verbuchen abgeschlossen"),
+						message: (data && data.message) || __("Fertig."),
+						indicator: "green"
+					});
+					load_transactions(page);
+				};
+				frappe.realtime.on("hibiscus_match_all_payments_done", done_handler);
+				frappe.show_progress(__("Ausgangsrechnungen werden abgeglichen..."), 0, 100);
 				frappe.call({
-					method: "hibiscus_connect.tools.match_all_payments",
-					freeze: true,
-					freeze_message: __("Ausgangsrechnungen werden abgeglichen..."),
+					method: "hibiscus_connect.tools.enqueue_match_all_payments",
+					args: { von: values.von, bis: values.bis },
 					callback: function(r) {
-						frappe.msgprint({
-							title: __("Automatisches Verbuchen abgeschlossen"),
-							indicator: "green",
-							message: r.message,
-						});
-						load_transactions(page);
+						if (r && r.message && r.message.status === "enqueued") {
+							frappe.show_alert({ message: __("Job gestartet."), indicator: "blue" });
+						}
 					},
+					error: function() {
+						frappe.realtime.off("hibiscus_match_all_payments_done", done_handler);
+						frappe.hide_progress();
+					}
 				});
 			}
-		);
+		});
+		d.show();
 	});
 
 	// Primary action
