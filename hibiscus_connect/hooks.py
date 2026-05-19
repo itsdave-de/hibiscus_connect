@@ -9,6 +9,17 @@ app_color = "grey"
 app_email = "dev@itsdave.de"
 app_license = "MIT"
 
+# App Screen Icon (Frappe 16 Desktop Icon System)
+# ------------------------------------------------
+add_to_apps_screen = [
+    {
+        "name": "hibiscus_connect",
+        "logo": "/assets/hibiscus_connect/images/banking-icon.svg",
+        "title": "itsdave Banking",
+        "route": "/app/itsbanking",
+    }
+]
+
 # Installation
 # ------------
 
