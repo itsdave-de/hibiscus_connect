@@ -20,7 +20,6 @@
   "column_break_9",
   "debtor_name",
   "debtor_iban",
-  "section_break_12",
   "mandate_section",
   "mandate_reference",
   "sepa_type",
@@ -32,85 +31,84 @@
  ],
  "fields": [
   {
+   "description": "Set to 'Customer' when ERPNext is installed",
    "fieldname": "customer_type",
    "fieldtype": "Link",
    "label": "Customer Type",
-   "options": "DocType",
-   "hidden": 1,
-   "description": "Set to 'Customer' when ERPNext is installed"
+   "options": "DocType"
   },
   {
+   "description": "Link to the customer (ERPNext)",
    "fieldname": "customer",
    "fieldtype": "Dynamic Link",
    "label": "Customer",
-   "options": "customer_type",
-   "description": "Link to the customer (ERPNext)"
+   "options": "customer_type"
   },
   {
+   "description": "Status of the SEPA mandate",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "new\nactive\ninactive",
-   "description": "Status of the SEPA mandate"
+   "options": "new\nactive\ninactive"
   },
   {
+   "description": "IBAN of the creditor's bank account",
    "fieldname": "creditor_iban",
    "fieldtype": "Data",
    "label": "Creditor IBAN",
-   "read_only": 1,
-   "description": "IBAN of the creditor's bank account"
+   "read_only": 1
   },
   {
+   "description": "BIC/SWIFT code of the debtor's bank",
    "fieldname": "debtor_bic",
    "fieldtype": "Data",
-   "label": "Debtor BIC",
-   "description": "BIC/SWIFT code of the debtor's bank"
+   "label": "Debtor BIC"
   },
   {
+   "description": "IBAN of the debtor's bank account",
    "fieldname": "debtor_iban",
    "fieldtype": "Data",
-   "label": "Debtor IBAN",
-   "description": "IBAN of the debtor's bank account"
+   "label": "Debtor IBAN"
   },
   {
+   "description": "Unique identifier for tracking the transaction from end to end",
    "fieldname": "end_to_end_id",
    "fieldtype": "Data",
-   "label": "End to End ID",
-   "description": "Unique identifier for tracking the transaction from end to end"
+   "label": "End to End ID"
   },
   {
+   "description": "Unique reference number for this SEPA mandate",
    "fieldname": "mandate_reference",
    "fieldtype": "Data",
    "label": "Mandate Reference",
-   "read_only": 1,
-   "description": "Unique reference number for this SEPA mandate"
+   "read_only": 1
   },
   {
+   "description": "SEPA Creditor Identifier (Gl\u00e4ubiger-ID)",
    "fieldname": "creditor_id",
    "fieldtype": "Data",
    "label": "Creditor ID",
-   "read_only": 1,
-   "description": "SEPA Creditor Identifier (Gl\u00e4ubiger-ID)"
+   "read_only": 1
   },
   {
+   "description": "Date when the mandate was signed by the debtor",
    "fieldname": "signature_date",
    "fieldtype": "Date",
-   "label": "Signature Date",
-   "description": "Date when the mandate was signed by the debtor"
+   "label": "Signature Date"
   },
   {
    "default": "B2B",
+   "description": "Type of SEPA direct debit (CORE for consumers, B2B for businesses)",
    "fieldname": "sepa_type",
    "fieldtype": "Select",
    "label": "SEPA Type",
-   "options": "CORE\nCOR1\nB2B",
-   "description": "Type of SEPA direct debit (CORE for consumers, B2B for businesses)"
+   "options": "CORE\nCOR1\nB2B"
   },
   {
+   "description": "Name of the account holder (debtor)",
    "fieldname": "debtor_name",
    "fieldtype": "Data",
-   "label": "Debtor Name",
-   "description": "Name of the account holder (debtor)"
+   "label": "Debtor Name"
   },
   {
    "fieldname": "creditor_section",
@@ -122,11 +120,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Hibiscus internal account ID for the creditor",
    "fieldname": "creditor_account_id",
    "fieldtype": "Data",
    "label": "Creditor Account ID",
-   "read_only": 1,
-   "description": "Hibiscus internal account ID for the creditor"
+   "read_only": 1
   },
   {
    "fieldname": "debtor_section",
@@ -136,10 +134,6 @@
   {
    "fieldname": "column_break_9",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_12",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "mandate_section",
@@ -152,23 +146,23 @@
   },
   {
    "default": "0",
+   "description": "Check if the first direct debit has been executed",
    "fieldname": "first_debit_done",
    "fieldtype": "Check",
-   "label": "First Debit Done",
-   "description": "Check if the first direct debit has been executed"
+   "label": "First Debit Done"
   },
   {
    "default": "0",
+   "description": "Check if this is the last direct debit under this mandate",
    "fieldname": "is_final_debit",
    "fieldtype": "Check",
-   "label": "Final Debit",
-   "description": "Check if this is the last direct debit under this mandate"
+   "label": "Final Debit"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-25 09:16:11.913954",
- "modified_by": "Administrator",
+ "modified": "2026-03-11 10:14:31.297267",
+ "modified_by": "b.trzensiok@itsdave.de",
  "module": "Hibiscus Connect",
  "name": "SEPA Lastschrift Mandat",
  "owner": "Administrator",
@@ -207,7 +201,9 @@
    "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

@@ -456,7 +456,8 @@ def match_all_payments(von=None, bis=None):
         "sinvs_matched_loose": 0,
         "sinvs_matched_cust": 0,
         "totals_matched": 0,
-        "payments_processed": 0
+        "payments_processed": 0,
+        "errors": 0
         }
     payments = frappe.get_all("Hibiscus Connect Transaction", filters={
         "status": "new",
@@ -468,45 +469,73 @@ def match_all_payments(von=None, bis=None):
     payments_list = []
 
     count = 0
+    total = len(payments)
+    error_details = []
     for p in payments:
         count += 1
         payments_list.append(p)
-        result = match_payment(p.name, sinvs=unpaid_sinvs)
+        try:
+            result = match_payment(p.name, sinvs=unpaid_sinvs)
 
-        stats["payments_processed"] += 1
-        if result["sinvs_matched_strict"]:
-            stats["sinvs_matched_strict"] += 1
-            pe = make_payment_entry(result)
-            if pe:
-                create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
-        if result["sinvs_matched_loose"]:
-            stats["sinvs_matched_loose"] += 1
-            pe = make_payment_entry(result)
-            if pe:
-                create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
-        if result["sinvs_matched_cust"]:
-            stats["sinvs_matched_cust"] += 1
-            print(result)
-            pe = make_payment_entry(result)
-            if pe:
-                create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
-        if result["totals_matched"]:
-            stats["totals_matched"] += 1
-        else:
-            debug_data(result)
-            # Doppelzahlung markieren wenn erkannt
-            if result.get("duplicate_warning"):
-                hib_trans_doc = result["hib_trans_doc"]
-                hib_trans_doc.status = "possible duplicate"
-                hib_trans_doc.log = "Mögliche Doppelzahlung erkannt:\n" + "\n".join(result["duplicate_warning"])
-                hib_trans_doc.save()
+            stats["payments_processed"] += 1
+            if result["sinvs_matched_strict"]:
+                stats["sinvs_matched_strict"] += 1
+                pe = make_payment_entry(result)
+                if pe:
+                    create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
+            if result["sinvs_matched_loose"]:
+                stats["sinvs_matched_loose"] += 1
+                pe = make_payment_entry(result)
+                if pe:
+                    create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
+            if result["sinvs_matched_cust"]:
+                stats["sinvs_matched_cust"] += 1
+                pe = make_payment_entry(result)
+                if pe:
+                    create_bank_account_for_customer(pe.party, p["counterparty_iban"], p["counterparty_bic"])
+            if result["totals_matched"]:
+                stats["totals_matched"] += 1
+            else:
+                # Doppelzahlung markieren wenn erkannt
+                if result.get("duplicate_warning"):
+                    hib_trans_doc = result["hib_trans_doc"]
+                    hib_trans_doc.status = "possible duplicate"
+                    hib_trans_doc.log = "Mögliche Doppelzahlung erkannt:\n" + "\n".join(result["duplicate_warning"])
+                    hib_trans_doc.save()
+            frappe.db.commit()
+        except Exception as e:
+            frappe.db.rollback()
+            stats["errors"] += 1
+            tb = frappe.get_traceback()
+            reason = frappe.utils.strip_html(frappe.utils.cstr(e)).strip() or e.__class__.__name__
+            if reason.startswith("Customer ") and reason.endswith("is disabled"):
+                cust = reason[len("Customer "):-len(" is disabled")].strip()
+                cust_name = frappe.db.get_value("Customer", cust, "customer_name") or cust
+                reason = "Kunde {0} ({1}) ist deaktiviert".format(cust_name, cust)
+            detail = {"trans": p.name, "reason": reason, "counterparty": "", "amount": None, "date": None}
+            try:
+                hib_doc = frappe.get_doc("Hibiscus Connect Transaction", p.name)
+                detail["counterparty"] = hib_doc.counterparty_name or ""
+                detail["amount"] = hib_doc.amount
+                detail["date"] = hib_doc.transaction_date
+                hib_doc.log = "Automatische Verbuchung fehlgeschlagen:\n" + tb
+                hib_doc.save()
+                frappe.db.commit()
+            except Exception:
+                frappe.db.rollback()
+            error_details.append(detail)
+            try:
+                frappe.log_error(message=tb, title="Hibiscus Verbuchung fehlgeschlagen: {0}".format(p.name))
+            except Exception:
+                pass
+        finally:
+            if total:
+                frappe.publish_progress(
+                    count * 100 / total,
+                    title="Verarbeite Zahlungseingänge...",
+                )
 
-        frappe.publish_progress(
-			count * 100 / len(payments),
-			title="Verarbeite Zahlungseingänge...",
-		)
-
-    result_text = get_text_from_stats(stats)
+    result_text = get_text_from_stats(stats, error_details)
     pprint(stats)
     try:
         frappe.publish_realtime(
@@ -842,7 +871,7 @@ def _get_payment_entry_reference(sinv):
 
 ### wip
 
-def get_text_from_stats(stats):
+def get_text_from_stats(stats, error_details=None):
     html = (
         f"<h2>Übersicht verarbeiteter Zahlungen</h2>"
         f"<ul style='list-style-type: disc; padding-left: 20px;'>"
@@ -851,8 +880,27 @@ def get_text_from_stats(stats):
         f"<li><strong>Treffer per Rechnungsnummer (unscharf):</strong> {stats['sinvs_matched_loose']}</li>"
         f"<li><strong>Treffer per Kunde:</strong> {stats['sinvs_matched_cust']}</li>"
         f"<li><strong>Beträge übereingestimmt:</strong> {stats['totals_matched']}</li>"
+        f"<li><strong>Fehlerhaft übersprungen:</strong> {stats.get('errors', 0)}</li>"
         f"</ul>"
     )
+    if error_details:
+        html += "<h3>Übersprungene Zahlungen</h3>"
+        html += "<ul style='list-style-type: disc; padding-left: 20px;'>"
+        for d in error_details:
+            amount = d.get("amount")
+            amount_str = frappe.utils.fmt_money(amount, currency="EUR") if amount is not None else ""
+            parts = []
+            if d.get("date"):
+                parts.append(frappe.utils.formatdate(d["date"]))
+            if d.get("counterparty"):
+                parts.append(frappe.utils.escape_html(d["counterparty"]))
+            if amount_str:
+                parts.append(amount_str)
+            head = " · ".join(parts)
+            link = "<a href='/app/hibiscus-connect-transaction/{0}'>{0}</a>".format(d["trans"])
+            reason = frappe.utils.escape_html(d.get("reason") or "")
+            html += f"<li>{head} ({link}): <strong>{reason}</strong></li>"
+        html += "</ul>"
     return html
 
 @frappe.whitelist()
